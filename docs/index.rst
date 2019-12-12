@@ -3,18 +3,31 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to Astraea's documentation!
+Astraea
 ===================================
+*Astraea* is a tool to calculate rotation period from various features provided. It is intended to predict long rotation periods from short lightcurves from TESS (27-day lightcurves).
+
+Example usage
+
+.. Contents:
+
+User Guide
+----------
+.. toctree::
+   :maxdepth: 2
+   
+   user/install
+   user/tests
+   user/api
+
+Tutorials
+---------
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
 
+   tutorials/Tutorial
 
+License & attribution
+---------------------
 
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
