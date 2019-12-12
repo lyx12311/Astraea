@@ -1,10 +1,10 @@
-.. module:: FLICKER
+.. module:: Astraea
 
 .. _api:
 
 API documentation
 =================
 
-.. autofunction:: FLICKER.SingleFlicker
+.. autofunction:: Astraea.plot_result
 
-.. autofunction:: FLICKER.Flicker
+.. autofunction:: Astraea.my_randF_SL
