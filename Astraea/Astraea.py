@@ -1,77 +1,12 @@
 import pandas as pd 
 import numpy as np
-import matplotlib.pyplot as plt
+
 from astropy import units as u
 from astropy.coordinates import SkyCoord
 import astropy.utils as au
-from astropy.io import fits
 import astropy.coordinates as coord
 
-from sklearn.model_selection import cross_val_score
-from sklearn.datasets import make_blobs
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.ensemble import ExtraTreesClassifier
-from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestRegressor
-from sklearn.datasets import make_regression
-from sklearn.preprocessing import normalize
-
-plt.rcParams.keys()
-plt.rc('font', family='serif')
-params = {
-   'axes.labelsize': 30,
-   'axes.linewidth': 1.5,
-   'legend.fontsize': 25,
-   'legend.frameon': False,
-   'lines.linewidth': 2,
-   'xtick.direction': 'in',
-   'xtick.labelsize': 25,
-   'xtick.major.bottom': True,
-   'xtick.major.pad': 10,
-   'xtick.major.size': 10,
-   'xtick.major.width': 1,
-   'xtick.minor.bottom': True,
-   'xtick.minor.pad': 3.5,
-   'xtick.minor.size': 5,
-   'xtick.minor.top': True,
-   'xtick.minor.visible': True,
-   'xtick.minor.width': 1,
-   'xtick.top': True,
-   'ytick.direction': 'in',
-   'ytick.labelsize': 25,
-   'ytick.major.pad': 10,
-   'ytick.major.size': 10,
-   'ytick.major.width': 1,
-   'ytick.minor.pad': 3.5,
-   'ytick.minor.size': 5,
-   'ytick.minor.visible': True,
-   'ytick.minor.width': 1,
-   'ytick.right': True,
-   'figure.figsize': [10,10], # instead of 4.5, 4.5
-   'savefig.format': 'eps',
-   'text.usetex': False,
-   }
-plt.rcParams.update(params)
-
-# use to print progress bar
-import time, sys
-from IPython.display import clear_output
-def update_progress(progress):
-    bar_length = 20
-    if isinstance(progress, int):
-        progress = float(progress)
-    if not isinstance(progress, float):
-        progress = 0
-    if progress < 0:
-        progress = 0
-    if progress >= 1:
-        progress = 1
-
-    block = int(round(bar_length * progress))
-
-    clear_output(wait = True)
-    text = "Progress: [{0}] {1:.1f}%".format( "#" * block + "-" * (bar_length - block), progress * 100)
-    print(text)
     
 # calcualte v_t, v_b by passing in a dataframe with parallax, pmra, pmdec, ra, dec
 def CalcV(df):
