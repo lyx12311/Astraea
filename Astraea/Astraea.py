@@ -8,6 +8,8 @@ import astropy.coordinates as coord
 
 from sklearn.ensemble import RandomForestRegressor
     
+    
+"""--------------------------------------------- star of functions not related to RF --------------------------------------------- """
 # calcualte v_t, v_b by passing in a dataframe with parallax, pmra, pmdec, ra, dec
 def CalcV(df):
 	d = coord.Distance(parallax=np.array(df.parallax) * u.mas,allow_negative=True)
@@ -25,33 +27,281 @@ def CalcV(df):
 
 
 # calculates chisq
-def calcChi(Prot,Prot_pre,Prot_err):
-    # Prot: rotation periods
-    # Prot_pre: predicted rotation periods
-    # Prot_err: rotation period errors
+def calcChi(TrueVal,PreVal,TrueVal_err):
+    """Calculate average chisq value and ignore stars without error measurements
+    
+    Args:
+      TrueVal ([array-like]): True values to compare to
+      PreVal ([array-like]): Predicted values
+      TrueVal_err ([array-like]): Errors for true values
+    
+    Returns:
+      ave_chi ([float]): Average chisq value
+    """
     validv=0
-    for i in range(len(Prot)):
-        if Prot_err[i]==0 or Prot_err[i]==np.nan:
-            Prot[i]=0
-            Prot_pre[i]=0
-            Prot_err[i]=1
+    for i in range(len(TrueVal)):
+        if TrueVal_err[i]==0 or TrueVal_err[i]==np.nan:
+            TrueVal[i]=0
+            PreVal[i]=0
+            TrueVal_err[i]=1
             validv=validv+1
-    avstedv=sum([(Prot[i]-Prot_pre[i])**2./Prot_err[i] for i in range(len(Prot_err))])/(len(Prot_pre)-validv)
-    return avstedv
+    ave_chi=sum([(TrueVal[i]-PreVal[i])**2./TrueVal_err[i] for i in range(len(TrueVal_err))])/(len(PreVal)-validv)
+    return ave_chi
     
 # calculates median relative error
-def MRE(Prot,Prot_pre,Prot_err):
-    # Prot: rotation periods
-    # Prot_pre: predicted rotation periods
-    # Prot_err: rotation period errors
+def MRE(TrueVal,PreVal,TrueVal_err=[]):
+    """Calculate median relative error 
+    
+    Args:
+      TrueVal ([array-like]): True values to compare to
+      PreVal ([array-like]): Predicted values
+      TrueVal_err (Optional [array-like]): Errors for true values
+    
+    Returns:
+      meree ([float]): Median relative error
+    """
     validv=0
-    #print(Prot-Prot_pre)
-    #print(Prot)
-    meree=np.median([abs(Prot[i]-Prot_pre[i])/Prot[i] for i in range(len(Prot_err))])
+    meree=np.median([abs(TrueVal[i]-PreVal[i])/TrueVal[i] for i in range(len(TrueVal))])
     return meree
+
+
+# plot different features vs Prot
+def plot_corr(df,y_vars,x_var='Prot',logplotarg=[],logarg=[]):
+    """Plot correlations on one variable vs other variables specified by user
+    
+    Args:
+      df ([Panda dataFrame]): DataFrame contains all variables needed
+      y_vars ([string list]): List of variables on y axis
+      x_var (optional [string]): Value for all x axis 
+      logplotarg (Optional [string list]): Variables to plot in loglog scale
+      logarg (Optional [string] or [string list]): 'loglog' or 'logx' or 'logy' (default is linear). If it is a list, each argument in *logplotarg* correspond to each scale in *logarg* in order 
+    """
+    # df: dataframe
+    # my_xticks: features to plot against Prot
+    # logplotarg: arguments to plot in loglog space
+    # logarg: which log to plot
+    
+    # add in Prot
+    Prot=df[x_var]
+    df=df[y_vars].dropna()
+    Prot=Prot[df.index]
+    topn=len(y_vars)
+    # get subplot config
+    com_mul=[] 
+    # get all multiplier
+    for i in range(1,topn):
+        if float(topn)/float(i)-int(float(topn)/float(i))==0:
+            com_mul.append(i)
+        
+    # total rows and columns
+    col=int(np.median(com_mul))
+    row=int(topn/col)
+    if col*row<topn:
+        if col<row:
+            row=row+1
+        else:
+            col=col+1
+        
+    # plot feature vs Prot
+    plt.figure(figsize=(int(topn*2.5),int(topn*2.5)))
+    for i in range(topn):
+        plt.subplot(row,col,i+1)
+        featurep=df[y_vars[i]]
+        if len(logarg)==1:
+            if y_vars[i] in logplotarg:
+                if logarg=='loglog':
+                    plt.loglog(Prot,featurep,'k.',markersize=1)
+                elif logarg=='logx':
+                    plt.semilogx(Prot,featurep,'k.',markersize=1)
+                elif logarg=='logy':
+                    plt.semilogy(Prot,featurep,'k.',markersize=1)
+                else:
+                    plt.plot(Prot,featurep,'k.',markersize=1)
+        else:
+            if y_vars[i] in logplotarg:
+                logsca=logarg[logplotarg.index(y_vars[i])]
+                if logsca=='loglog':
+                    plt.loglog(Prot,featurep,'k.',markersize=1)
+                elif logsca=='logx':
+                    plt.semilogx(Prot,featurep,'k.',markersize=1)
+                elif logsca=='logy':
+                    plt.semilogy(Prot,featurep,'k.',markersize=1)
+                else:
+                    plt.plot(Prot,featurep,'k.',markersize=1)
+		    
+        plt.title(y_vars[i],fontsize=25)
+        stddata=np.std(featurep)
+        plt.ylim([np.median(featurep)-3*stddata,np.median(featurep)+3*stddata])
+        plt.xlabel(x_var)
+        plt.ylabel(y_vars[i])
+	
+"""--------------------------------------------- end of functions not related to RF --------------------------------------------- """
+
+
+
+
+"""--------------------------------------------- RF training and results --------------------------------------------- """
+# use only a couple of features 
+def my_randF_SL(df,testF,traind=0.8,ID_on='KID',X_train_ind=[],X_test_ind=[],target_var='Prot',target_var_err='Prot_err',chisq_out=False,MREout=False,n_estimators=100, criterion='mse', max_depth=None, min_samples_split=2, min_samples_leaf=1, min_weight_fraction_leaf=0.0, max_features='auto', max_leaf_nodes=None, min_impurity_decrease=0.0, min_impurity_split=None, bootstrap=True, oob_score=False, n_jobs=1, random_state=None, verbose=0, warm_start=False):
+    """Train RF regression model, perform cross-validation test and output test results. Can take in any optional hyper-parameters used in scikit-learn RF regressor model. More detail see https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestRegressor.html
+    
+    Args:
+      df ([Panda dataFrame]): DataFrame contains all variables needed
+      testF ([string list]): List of feature names used to train
+      traind (Optinal [float]): Fraction of data use to train, the rest will be used to perform cross-validation test (default 0.8)
+      ID_on (Optional [string]): What is the star identifier column name (default 'KID')
+      X_train_ind (Optional [list]): List of *ID_on* for training set, if not specified, take random *traind* fraction of indexes from *ID_on* column
+      X_test_ind (Optional [list]): List of *ID_on* for testing set, if not specified, take the remaining (1-*traind*) fraction of indexes from *ID_on* column that is not in the training set (*X_train_ind*)
+      target_var (Optional [string]): Label column name (default 'Prot')
+      target_var_err (Optional [string]): Label error column name (default 'Prot_err')
+      chisq_out (optional [bool]): If true, only output average chisq value
+      MREout (optional [bool]): If true, only output median relative error. If both *chisq_out* and *MREout* are true, then output only these two values
+      
+    Returns:
+      regr: Sklearn RF regressor model (attributes see https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestRegressor.html)
+      actrualF ([string list]): Actrual features used
+      importance ([float list]): Impurity-based feature importance ordering as *actrualF*
+      ID_train ([list]): List of *ID_on* used for training set 
+      ID_test ([list]): List of *ID_on* used for testing set
+      predictp ([float list]): List of prediction on testing set
+      ave_chi ([float]): Average chisq on cross-validation (testing) set
+      MRE_val ([float]): Median relative error on cross-validation (testing) set 
+      X_test ([matrix]): Matrix used to predict label values for testing set
+      y_test ([array-like]): Array of true label values of testing set
+      X_train ([matrix]): Matrix used to predict label values for training set
+      y_train ([array-like]): Array of true label values of training set
+      
+    """
+   
+    print('Simpliest example:\n regr,importance,actrualF,ID_train,ID_test,predictp,ave_chi,MRE_val,X_test,y_test,X_train,y_train = my_randF_SL(df,testF)\n')
+
+    if len(X_train_ind)==0:
+        print('Fraction of data used to train:',traind)
+    else:
+        print('Training KID specified!\n')
+        print('Estimated fraction of data used to train:',float(len(X_train_ind))/float(len(df[target_var])))
+    print('# of Features attempt to train:',len(testF))
+    print('Features attempt to train:',testF)
+
+    fl=len(df.columns) # how many features
+    keys=range(fl)
+    flib=dict(zip(keys, df.columns))
+    
+    featl_o=len(df[target_var]) # old feature length before dropping
+    
+    actrualF=[] # actrual feature used
+    # fill in feature array
+    lenX=0
+    missingf=[]
+    for i in df.columns:
+        feature=df[i].values
+        if (type(feature[0]) is not str) and (i in testF):
+            if sum(np.isnan(feature))<0.1*featl_o:
+                lenX=lenX+1
+                actrualF.append(i)
+            else:
+                missingf.append(i)
+            
+    X=df[actrualF]
+    X=X.replace([np.inf, -np.inf], np.nan)
+    X=X.dropna()
+
+    featl=np.shape(X)[0]
+    #print(featl)
+    print(str(featl_o)+' stars in dataframe!')
+    if len(missingf)!=0:
+        print('Missing features:',missingf)
+    if (featl_o-featl)!=0:
+        print('Missing '+ str(featl_o-featl)+' stars from null values in data!\n')
+
+    print(str(featl)+' total stars used for RF!')
+    
+
+    #print(X_train_ind)
+
+    if len(X_train_ind)==0:
+        # output
+        y=df[target_var][X.index].values
+        y_err=df[target_var_err][X.index].values
+        ID_ar=df[ID_on][X.index].values
+        X=X.values
+	
+        Ntrain = int(traind*featl)
+        # Choose stars at random and split.
+        shuffle_inds = np.arange(len(y))
+        np.random.shuffle(shuffle_inds)
+        train_inds = shuffle_inds[:Ntrain]
+        test_inds = shuffle_inds[Ntrain:]
+	
+        y_train, y_train_err, ID_train, X_train = y[train_inds], y_err[train_inds],ID_ar[train_inds],X[train_inds, :]
+        y_test, y_test_err, ID_test, X_test = y[test_inds], y_err[test_inds],ID_ar[test_inds],X[test_inds, :]
+	
+        test_inds,y_test, y_test_err, ID_test, X_test=zip(*sorted(zip(test_inds,y_test, y_test_err, ID_test, X_test)))
+        test_inds=np.array(test_inds)
+        y_test=np.array(y_test)
+        y_test_err=np.array(y_test_err)
+        ID_test=np.array(ID_test)
+        X_test=np.asarray(X_test)
+	
+    else:
+        datafT=df.loc[X.index].loc[df[ID_on].isin(X_train_ind)]
+        datafTes=df.loc[X.index].loc[df[ID_on].isin(X_test_ind)]
+        y_train, y_train_err,X_train = datafT.Prot.values, datafT.Prot_err.values,X.loc[df[ID_on].isin(X_train_ind)].values
+        y_test, y_test_err,X_test = datafTes.Prot.values, datafTes.Prot_err.values,X.loc[df[ID_on].isin(X_test_ind)].values
+    print(str(len(y_train))+' training stars!')
+
+
+
+    # run random forest
+    regr = RandomForestRegressor(n_estimators=n_estimators, criterion=criterion, max_depth=max_depth, min_samples_split=min_samples_split, min_samples_leaf=min_samples_leaf, min_weight_fraction_leaf=min_weight_fraction_leaf, max_features=max_features, max_leaf_nodes=max_leaf_nodes, min_impurity_decrease=min_impurity_decrease, min_impurity_split=min_impurity_split, bootstrap=bootstrap, oob_score=oob_score, n_jobs=n_jobs, random_state=random_state, verbose=verbose, warm_start=warm_start)
+    regr.fit(X_train, y_train)  
+    
+    
+
+    # get the importance of each feature
+    importance=regr.feature_importances_
+    
+    print('Finished training! Making predictions!')
+    # make prediction
+    predictp=regr.predict(X_test)
+    print('Finished predicting! Calculating chi^2!')
+     
+    # calculate chisq and MRE
+    MRE_val=MRE(y_test,predictp,y_test_err)
+    ave_chi=calcChi(y_test,predictp,y_test_err)
+
+    print('Median Relative Error is:',MRE_val)
+    print('Average chi^2 is:',ave_chi)
+    
+    if chisq_out:
+        if MREout:
+            print('Finished!')
+            return ave_chi,MRE_val
+        else:
+            print('Finished!')
+            return ave_chi
+    elif MREout:
+        print('Finished!')
+        return MRE_val
+    else:
+        if len(X_train_ind)!=0:
+            ID_train=datafT[ID_on].values
+            ID_test=datafTes[ID_on].values
+            ID_train=[int(i) for i in ID_train]
+            ID_test=[int(i) for i in ID_test]
+        print('Finished!')
+        return regr,importance,actrualF,ID_train,ID_test,predictp,ave_chi,MRE_val,X_test,y_test,X_train,y_train
+
 
 # for plotting results for importance and predict vs true
 def plot_result(actrualF,importance,prediction,y_test,y_test_err,topn=20):
+    """Plot impurity-based feature importance as well as predicted values vs true values for a random forest model
+    
+    Args:
+      actrualF ([array-like]): Feature used (from function output of my_randF_SL())
+      PreVal ([array-like]): Predicted values (from function output of my_randF_SL())
+      TrueVal_err (Optional [array-like]): Errors for true values (from function output of my_randF_SL())
+    """
     # inputs:
     # actrualF: feature used in training (output from my_randF_mask)
     # importance/prediction: output from my_randF function
@@ -112,188 +362,4 @@ def plot_result(actrualF,importance,prediction,y_test,y_test_err,topn=20):
     
     avstedv=MRE(y_test,prediction,y_test_err)
     print('Median relative error is: ',avstedv)
-    return(my_xticks)
-
-
-
-# plot different features vs Prot
-def plot_corr(df,my_xticks,logplotarg=[],logarg=[]):
-    # df: dataframe
-    # my_xticks: features to plot against Prot
-    # logplotarg: arguments to plot in loglog space
-    # logarg: which log to plot
     
-    # add in Prot
-    Prot=df.Prot
-    df=df[my_xticks].dropna()
-    Prot=Prot[df.index]
-    topn=len(my_xticks)
-    # get subplot config
-    com_mul=[] 
-    # get all multiplier
-    for i in range(1,topn):
-        if float(topn)/float(i)-int(float(topn)/float(i))==0:
-            com_mul.append(i)
-        
-    # total rows and columns
-    col=int(np.median(com_mul))
-    row=int(topn/col)
-    if col*row<topn:
-        if col<row:
-            row=row+1
-        else:
-            col=col+1
-        
-    # plot feature vs Prot
-    plt.figure(figsize=(int(topn*2.5),int(topn*2.5)))
-    for i in range(topn):
-        plt.subplot(row,col,i+1)
-        featurep=df[my_xticks[i]]
-        if my_xticks[i] in logplotarg:
-            if logarg=='loglog':
-                plt.loglog(Prot,featurep,'k.',markersize=1)
-            elif logarg=='logx':
-                plt.semilogx(Prot,featurep,'k.',markersize=1)
-            elif logarg=='logy':
-                plt.semilogy(Prot,featurep,'k.',markersize=1)
-            else:
-                raise SyntaxError("Log scale input not recognized!")
-        else:
-            plt.plot(Prot,featurep,'k.',markersize=1)
-        plt.title(my_xticks[i],fontsize=25)
-        stddata=np.std(featurep)
-        #print([np.median(featurep)-3*stddata,np.median(featurep)+3*stddata])
-        plt.ylim([np.median(featurep)-3*stddata,np.median(featurep)+3*stddata])
-        plt.xlabel('Prot')
-        plt.ylabel(my_xticks[i])
-        #plt.tight_layout()
-
-
-############################# RF training #########################################
-# use only a couple of features 
-def my_randF_SL(df,traind,testF,X_train_ind=[],X_test_ind=[],chisq_out=False,MREout=False,n_estimators=100, criterion='mse', max_depth=None, min_samples_split=2, min_samples_leaf=1, min_weight_fraction_leaf=0.0, max_features='auto', max_leaf_nodes=None, min_impurity_decrease=0.0, min_impurity_split=None, bootstrap=True, oob_score=False, n_jobs=1, random_state=None, verbose=0, warm_start=False):
-    # df: dataframe to train with all the features including Prot and Prot_err
-    # traind: fraction of data use to train
-    # testF: training feature names
-    # X_train_ind: KID for training stars
-    # X_test_ind: KID for testing stars
-    # chisq_out: output only median relative error?
-   
-    print('regr,importance,actrualF,KID_train,KID_test,predictp,avstedv,avMRE = my_randF_SL(df,traind,testF,chisq_out=0,MREout=False,hyperp=[])\n')
-
-    if len(X_train_ind)==0:
-        print('Fraction of data used to train:',traind)
-    else:
-        print('Training KID specified!\n')
-        print('Estimated fraction of data used to train:',len(X_train_ind)/len(df['Prot']))
-    print('# Features used to train:',len(testF))
-    print('Features used to train:',testF)
-
-    fl=len(df.columns) # how many features
-    keys=range(fl)
-    flib=dict(zip(keys, df.columns))
-    
-    featl_o=len(df.Prot) # old feature length before dropping
-    
-    actrualF=[] # actrual feature used
-    # fill in feature array
-    lenX=0
-    missingf=[]
-    for i in df.columns:
-        feature=df[i].values
-        if (type(feature[0]) is not str) and (i in testF):
-            if sum(np.isnan(feature))<0.1*featl_o:
-                lenX=lenX+1
-                actrualF.append(i)
-            else:
-                missingf.append(i)
-            
-    X=df[actrualF]
-    X=X.replace([np.inf, -np.inf], np.nan)
-    X=X.dropna()
-
-    featl=np.shape(X)[0]
-    #print(featl)
-    print(str(featl_o)+' stars in dataframe!')
-    if len(missingf)!=0:
-        print('Missing features:',missingf)
-    if (featl_o-featl)!=0:
-        print('Missing '+ str(featl_o-featl)+' stars from null values in data!\n')
-
-    print(str(featl)+' total stars used for RF!')
-    
-
-    #print(X_train_ind)
-
-    if len(X_train_ind)==0:
-        # output
-        y=df.Prot[X.index].values
-        y_err=df.Prot_err[X.index].values
-        KID_ar=df.KID[X.index].values
-        X=X.values
-	
-        Ntrain = int(traind*featl)
-        # Choose stars at random and split.
-        shuffle_inds = np.arange(len(y))
-        np.random.shuffle(shuffle_inds)
-        train_inds = shuffle_inds[:Ntrain]
-        test_inds = shuffle_inds[Ntrain:]
-	
-        y_train, y_train_err, KID_train, X_train = y[train_inds], y_err[train_inds],KID_ar[train_inds],X[train_inds, :]
-        y_test, y_test_err, KID_test, X_test = y[test_inds], y_err[test_inds],KID_ar[test_inds],X[test_inds, :]
-	
-        test_inds,y_test, y_test_err, KID_test, X_test=zip(*sorted(zip(test_inds,y_test, y_test_err, KID_test, X_test)))
-        test_inds=np.array(test_inds)
-        y_test=np.array(y_test)
-        y_test_err=np.array(y_test_err)
-        KID_test=np.array(KID_test)
-        X_test=np.asarray(X_test)
-	
-    else:
-        datafT=df.loc[X.index].loc[df['KID'].isin(X_train_ind)]
-        datafTes=df.loc[X.index].loc[df['KID'].isin(X_test_ind)]
-        y_train, y_train_err,X_train = datafT.Prot.values, datafT.Prot_err.values,X.loc[df['KID'].isin(X_train_ind)].values
-        y_test, y_test_err,X_test = datafTes.Prot.values, datafTes.Prot_err.values,X.loc[df['KID'].isin(X_test_ind)].values
-    print(str(len(y_train))+' training stars!')
-
-
-
-    # run random forest
-    regr = RandomForestRegressor(n_estimators=n_estimators, criterion=criterion, max_depth=max_depth, min_samples_split=min_samples_split, min_samples_leaf=min_samples_leaf, min_weight_fraction_leaf=min_weight_fraction_leaf, max_features=max_features, max_leaf_nodes=max_leaf_nodes, min_impurity_decrease=min_impurity_decrease, min_impurity_split=min_impurity_split, bootstrap=bootstrap, oob_score=oob_score, n_jobs=n_jobs, random_state=random_state, verbose=verbose, warm_start=warm_start)
-    regr.fit(X_train, y_train)  
-    
-    
-
-    # get the importance of each feature
-    importance=regr.feature_importances_
-    
-    print('Finished training! Making predictions!')
-    # make prediction
-    predictp=regr.predict(X_test)
-    print('Finished predicting! Calculating chi^2!')
-     
-    # calculate chisq and MRE
-    avMRE=MRE(y_test,predictp,y_test_err)
-    avstedv=calcChi(y_test,predictp,y_test_err)
-
-    print('Median Relative Error is:',avMRE)
-    print('Average Chi^2 is:',avstedv)
-    
-    if chisq_out:
-        if MREout:
-            print('Finished!')
-            return avstedv,avMRE
-        else:
-            print('Finished!')
-            return avstedv
-    elif MREout:
-        print('Finished!')
-        return avMRE
-    else:
-        if len(X_train_ind)!=0:
-            KID_train=datafT.KID.values
-            KID_test=datafTes.KID.values
-            KID_train=[int(i) for i in KID_train]
-            KID_test=[int(i) for i in KID_test]
-        print('Finished!')
-        return regr,importance,actrualF,KID_train,KID_test,predictp,avstedv,avMRE,X_test,y_test,X_train,y_train
