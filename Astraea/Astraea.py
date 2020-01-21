@@ -172,6 +172,7 @@ def RFregressor(df,testF,traind=0.8,ID_on='KID',X_train_ind=[],X_test_ind=[],tar
     """Train RF regression model, perform cross-validation test and output test results. Can take in any optional hyper-parameters used in scikit-learn RF regressor model. More detail see https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestRegressor.html
     
     Args:
+    ------
       df ([Panda dataFrame]): DataFrame contains all variables needed
       testF ([string list]): List of feature names used to train
       traind (Optinal [float]): Fraction of data use to train, the rest will be used to perform cross-validation test (default 0.8)
@@ -184,7 +185,7 @@ def RFregressor(df,testF,traind=0.8,ID_on='KID',X_train_ind=[],X_test_ind=[],tar
       MREout (optional [bool]): If true, only output median relative error. If both *chisq_out* and *MREout* are true, then output only these two values
       
     Returns:
-      
+    ------  
       regr: Sklearn RF regressor model (attributes see https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestRegressor.html)
       actrualF ([string list]): Actrual features used
       importance ([float list]): Impurity-based feature importance ordering as *actrualF*
