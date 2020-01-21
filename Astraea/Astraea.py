@@ -1,4 +1,5 @@
 import pandas as pd 
+import matplotlib.pyplot as plt
 import numpy as np
 import os 
 
@@ -170,9 +171,9 @@ def plot_corr(df,y_vars,x_var='Prot',logplotarg=[],logarg=[]):
  
 # RF classifier 
 def RFclassifier(df,testF,traind=0.8,ID_on='KID',X_train_ind=[],X_test_ind=[],target_var='Prot_flag',n_estimators=100, criterion='gini', max_depth=None, min_samples_split=2, min_samples_leaf=1, min_weight_fraction_leaf=0.0, max_features='auto', max_leaf_nodes=None, min_impurity_decrease=0.0, min_impurity_split=None, bootstrap=True, oob_score=False, n_jobs=None, random_state=None, verbose=0, warm_start=False, class_weight=None, ccp_alpha=0.0, max_samples=None):
-    """Train RF regression model and perform cross-validation test. 
+    """Train RF classifier model and predict values for cross-validation dataset. 
     
-    It uses scikit-learn Random Forest regressor model. All default hyper-parameters are taken from the scikit-learn model that user can change by adding in optional inputs. More details on hyper-parameters, see https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestRegressor.html. To use the module to train a RF model to predict rotation period, input a pandas dataFrame with column names as well as a list of attribute names. 
+    It uses scikit-learn Random Forest classifier model. All default hyper-parameters are taken from the scikit-learn model that user can change by adding in optional inputs. More details on hyper-parameters, see https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html. To use the module to train a RF model to predict rotation period, input a pandas dataFrame with column names as well as a list of attribute names. 
     
     Args:
       df ([Panda dataFrame]): DataFrame contains all variables needed
@@ -429,7 +430,7 @@ def RFregressor(df,testF,traind=0.8,ID_on='KID',X_train_ind=[],X_test_ind=[],tar
     print('Finished training! Making predictions!')
     # make prediction
     predictp=regr.predict(X_test)
-    print('Finished predicting! Calculating chi^2!')
+    print('Finished predicting! Calculating statistics!')
      
     # calculate chisq and MRE
     MRE_val=MRE(y_test,predictp,y_test_err)
@@ -459,24 +460,15 @@ def RFregressor(df,testF,traind=0.8,ID_on='KID',X_train_ind=[],X_test_ind=[],tar
 
 
 # for plotting results for importance and predict vs true
-def plot_result(actrualF,importance,prediction,y_test,y_test_err,topn=20):
+def plot_result(actrualF,importance,prediction,y_test,y_test_err=[],topn=20):
     """Plot impurity-based feature importance as well as predicted values vs true values for a random forest model
     
     Args:
       actrualF ([array-like]): Feature used (from function output of RFregressor())
+      importance ([array-like]): importance of the model (from function output of RFregressor())
       PreVal ([array-like]): Predicted values (from function output of RFregressor())
       TrueVal_err (Optional [array-like]): Errors for true values (from function output of RFregressor())
     """
-    # inputs:
-    # actrualF: feature used in training (output from RFregressor)
-    # importance/prediction: output from RFregressor function
-    # topn: how many features to plot (default=20)
-    # X: features, if X is inputed then plot feature vs Prot
-    # y_test: tested values
-    # y_test_err: tested values errors
-    
-    # output: 
-    # my_xticks: importance of features in decending order
     
     topn=min([topn,len(actrualF)])
     # zip the importance with its feature name
@@ -502,28 +494,39 @@ def plot_result(actrualF,importance,prediction,y_test,y_test_err,topn=20):
     ####################  get most important features ############################################################
 
     # prediction vs true
-    plt.figure(figsize=(20,8))
-    plt.subplot(1,2,1)
-    plt.plot(sorted(prediction),sorted(prediction),'k-',label='y=x')
-    plt.plot(sorted(prediction),sorted(1.1*prediction),'b--',label='10% Error')
-    plt.plot(sorted(prediction),sorted(0.9*prediction),'b--')
-    plt.plot(y_test,prediction,'r.',Markersize=3,alpha=0.2)
-    plt.ylabel('Predicted Period')
-    plt.xlabel('True Period')
-    plt.ylim([0,max(prediction)])
-    plt.xlim([0,max(prediction)])
-    plt.legend()
-    plt.subplot(1,2,2)
-    plt.plot(sorted(prediction),sorted(prediction),'k-',label='y=x')
-    plt.plot(sorted(prediction),sorted(1.1*prediction),'b--',label='10% Error')
-    plt.plot(sorted(prediction),sorted(0.9*prediction),'b--')
-    plt.errorbar(y_test,prediction,xerr=y_test_err,fmt='r.',Markersize=3,alpha=0.2)
-    plt.ylabel('Predicted Period')
-    plt.xlabel('True Period')
-    plt.ylim([0,max(prediction)])
-    plt.xlim([0,max(prediction)])
-    plt.legend()
-    #plt.savefig('RF.png')
+    if len(y_test_err)==0:
+        plt.figure(figsize=(10,8))
+        plt.plot(sorted(prediction),sorted(prediction),'k-',label='y=x')
+        plt.plot(sorted(prediction),sorted(1.1*prediction),'b--',label='10% Error')
+        plt.plot(sorted(prediction),sorted(0.9*prediction),'b--')
+        plt.plot(y_test,prediction,'r.',Markersize=3,alpha=0.2)
+        plt.ylabel('Predicted Period')
+        plt.xlabel('True Period')
+        plt.ylim([0,max(prediction)])
+        plt.xlim([0,max(prediction)])
+        plt.legend()
+    else:
+        plt.figure(figsize=(20,8))
+        plt.subplot(1,2,1)
+        plt.plot(sorted(prediction),sorted(prediction),'k-',label='y=x')
+        plt.plot(sorted(prediction),sorted(1.1*prediction),'b--',label='10% Error')
+        plt.plot(sorted(prediction),sorted(0.9*prediction),'b--')
+        plt.plot(y_test,prediction,'r.',Markersize=3,alpha=0.2)
+        plt.ylabel('Predicted Period')
+        plt.xlabel('True Period')
+        plt.ylim([0,max(prediction)])
+        plt.xlim([0,max(prediction)])
+        plt.legend()
+        plt.subplot(1,2,2)
+        plt.plot(sorted(prediction),sorted(prediction),'k-',label='y=x')
+        plt.plot(sorted(prediction),sorted(1.1*prediction),'b--',label='10% Error')
+        plt.plot(sorted(prediction),sorted(0.9*prediction),'b--')
+        plt.errorbar(y_test,prediction,xerr=y_test_err,fmt='r.',Markersize=3,alpha=0.2)
+        plt.ylabel('Predicted Period')
+        plt.xlabel('True Period')
+        plt.ylim([0,max(prediction)])
+        plt.xlim([0,max(prediction)])
+        plt.legend()
     
     avstedv=MRE(y_test,prediction,y_test_err)
     print('Median relative error is: ',avstedv)
