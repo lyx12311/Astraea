@@ -167,12 +167,13 @@ def plot_corr(df,y_vars,x_var='Prot',logplotarg=[],logarg=[]):
 
 
 """--------------------------------------------- RF training and results --------------------------------------------- """
-# use only a couple of features 
+ 
 def RFregressor(df,testF,traind=0.8,ID_on='KID',X_train_ind=[],X_test_ind=[],target_var='Prot',target_var_err='Prot_err',chisq_out=False,MREout=False,n_estimators=100, criterion='mse', max_depth=None, min_samples_split=2, min_samples_leaf=1, min_weight_fraction_leaf=0.0, max_features='auto', max_leaf_nodes=None, min_impurity_decrease=0.0, min_impurity_split=None, bootstrap=True, oob_score=False, n_jobs=1, random_state=None, verbose=0, warm_start=False):
-    """Train RF regression model, perform cross-validation test and output test results. Can take in any optional hyper-parameters used in scikit-learn RF regressor model. More detail see https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestRegressor.html
+    """Train RF regression model and perform cross-validation test. 
+    
+    It uses scikit-learn Random Forest regressor model. All default hyper-parameters are taken from the scikit-learn model that user can change by adding in optional inputs. More details on hyper-parameters, see https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestRegressor.html. To use the module to train a RF model to predict rotation period, input a pandas dataFrame with column names as well as a list of attribute names. 
     
     Args:
-    ------
       df ([Panda dataFrame]): DataFrame contains all variables needed
       testF ([string list]): List of feature names used to train
       traind (Optinal [float]): Fraction of data use to train, the rest will be used to perform cross-validation test (default 0.8)
@@ -185,7 +186,7 @@ def RFregressor(df,testF,traind=0.8,ID_on='KID',X_train_ind=[],X_test_ind=[],tar
       MREout (optional [bool]): If true, only output median relative error. If both *chisq_out* and *MREout* are true, then output only these two values
       
     Returns:
-    ------  
+     
       regr: Sklearn RF regressor model (attributes see https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestRegressor.html)
       actrualF ([string list]): Actrual features used
       importance ([float list]): Impurity-based feature importance ordering as *actrualF*
