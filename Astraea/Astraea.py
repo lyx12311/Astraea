@@ -1,5 +1,6 @@
 import pandas as pd 
 import numpy as np
+import os 
 
 from astropy import units as u
 from astropy.coordinates import SkyCoord
@@ -8,6 +9,31 @@ import astropy.coordinates as coord
 
 from sklearn.ensemble import RandomForestRegressor
     
+"""--------------------------------------------- function to download RF ---------------------------------------------"""
+def download_RF_class(url='https://zenodo.org/record/3620729/files/RF_Class_model.sav?download=1'):
+    os.system('wget '+url)
+    os.system('mv RF_Class_model.sav?download=1 ./data/RF_Class_model.sav')
+   
+def download_RF_regr_1est(url='https://zenodo.org/record/3620729/files/RF_Regre_model_100est_flicker.sav?download=1'):
+    os.system('wget '+url)
+    os.system('mv RF_Regre_model_100est_flicker.sav?download=1 ./data/RF_Regre_model_100est_flicker.sav')
+
+def download_RF_regr_100est(url='https://zenodo.org/record/3620729/files/RF_Regre_model_1est_flicker.sav?download=1'):
+    os.system('wget '+url)
+    os.system('mv RF_Regre_model_1est_flicker.sav?download=1 ./data/RF_Regre_model_1est_flicker.sav')
+
+
+def load_RF():
+    if not os.path.exists('./data/'):
+        os.system('mkdir data')
+    if not os.path.exists('./data/RF_Class_model.sav'):
+        download_RF_class()
+    if not os.path.exists('./data/RF_Regre_model_100est_flicker.sav'):
+        download_RF_regr_1est()
+    if not os.path.exists('./data/RF_Regre_model_1est_flicker.sav'):
+        download_RF_regr_100est()
+
+"""--------------------------------------------- end of function to download RF ---------------------------------------------"""
     
 """--------------------------------------------- star of functions not related to RF --------------------------------------------- """
 # calcualte v_t, v_b by passing in a dataframe with parallax, pmra, pmdec, ra, dec
@@ -142,7 +168,7 @@ def plot_corr(df,y_vars,x_var='Prot',logplotarg=[],logarg=[]):
 
 """--------------------------------------------- RF training and results --------------------------------------------- """
 # use only a couple of features 
-def my_randF_SL(df,testF,traind=0.8,ID_on='KID',X_train_ind=[],X_test_ind=[],target_var='Prot',target_var_err='Prot_err',chisq_out=False,MREout=False,n_estimators=100, criterion='mse', max_depth=None, min_samples_split=2, min_samples_leaf=1, min_weight_fraction_leaf=0.0, max_features='auto', max_leaf_nodes=None, min_impurity_decrease=0.0, min_impurity_split=None, bootstrap=True, oob_score=False, n_jobs=1, random_state=None, verbose=0, warm_start=False):
+def RFregressor(df,testF,traind=0.8,ID_on='KID',X_train_ind=[],X_test_ind=[],target_var='Prot',target_var_err='Prot_err',chisq_out=False,MREout=False,n_estimators=100, criterion='mse', max_depth=None, min_samples_split=2, min_samples_leaf=1, min_weight_fraction_leaf=0.0, max_features='auto', max_leaf_nodes=None, min_impurity_decrease=0.0, min_impurity_split=None, bootstrap=True, oob_score=False, n_jobs=1, random_state=None, verbose=0, warm_start=False):
     """Train RF regression model, perform cross-validation test and output test results. Can take in any optional hyper-parameters used in scikit-learn RF regressor model. More detail see https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestRegressor.html
     
     Args:
@@ -158,6 +184,7 @@ def my_randF_SL(df,testF,traind=0.8,ID_on='KID',X_train_ind=[],X_test_ind=[],tar
       MREout (optional [bool]): If true, only output median relative error. If both *chisq_out* and *MREout* are true, then output only these two values
       
     Returns:
+      
       regr: Sklearn RF regressor model (attributes see https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestRegressor.html)
       actrualF ([string list]): Actrual features used
       importance ([float list]): Impurity-based feature importance ordering as *actrualF*
@@ -173,7 +200,7 @@ def my_randF_SL(df,testF,traind=0.8,ID_on='KID',X_train_ind=[],X_test_ind=[],tar
       
     """
    
-    print('Simpliest example:\n regr,importance,actrualF,ID_train,ID_test,predictp,ave_chi,MRE_val,X_test,y_test,X_train,y_train = my_randF_SL(df,testF)\n')
+    print('Simpliest example:\n regr,importance,actrualF,ID_train,ID_test,predictp,ave_chi,MRE_val,X_test,y_test,X_train,y_train = RFregressor(df,testF)\n')
 
     if len(X_train_ind)==0:
         print('Fraction of data used to train:',traind)
@@ -298,13 +325,13 @@ def plot_result(actrualF,importance,prediction,y_test,y_test_err,topn=20):
     """Plot impurity-based feature importance as well as predicted values vs true values for a random forest model
     
     Args:
-      actrualF ([array-like]): Feature used (from function output of my_randF_SL())
-      PreVal ([array-like]): Predicted values (from function output of my_randF_SL())
-      TrueVal_err (Optional [array-like]): Errors for true values (from function output of my_randF_SL())
+      actrualF ([array-like]): Feature used (from function output of RFregressor())
+      PreVal ([array-like]): Predicted values (from function output of RFregressor())
+      TrueVal_err (Optional [array-like]): Errors for true values (from function output of RFregressor())
     """
     # inputs:
-    # actrualF: feature used in training (output from my_randF_mask)
-    # importance/prediction: output from my_randF function
+    # actrualF: feature used in training (output from RFregressor)
+    # importance/prediction: output from RFregressor function
     # topn: how many features to plot (default=20)
     # X: features, if X is inputed then plot feature vs Prot
     # y_test: tested values
