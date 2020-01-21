@@ -185,10 +185,10 @@ def RFregressor(df,testF,traind=0.8,ID_on='KID',X_train_ind=[],X_test_ind=[],tar
       chisq_out (optional [bool]): If true, only output average chisq value
       MREout (optional [bool]): If true, only output median relative error. If both *chisq_out* and *MREout* are true, then output only these two values
       
-    Returns:
-      {
-      regr: Sklearn RF regressor model (attributes see https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestRegressor.html)
-      actrualF ([string list]): Actrual features used
+    Returns: tuple (regr,importance,actrualF,ID_train,ID_test,predictp,ave_chi,MRE_val,X_test,y_test,X_train,y_train)
+      WHERE
+      Sklearn RF regressor model regr is the trained RF model (attributes see https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestRegressor.html)
+      string list actrualF is Actrual features used
       importance ([float list]): Impurity-based feature importance ordering as *actrualF*
       ID_train ([list]): List of *ID_on* used for training set 
       ID_test ([list]): List of *ID_on* used for testing set
