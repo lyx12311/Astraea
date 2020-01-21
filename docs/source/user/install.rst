@@ -17,7 +17,7 @@ The dependencies of *Astraea* are
 `NumPy <http://www.numpy.org/>`_,
 `pandas <https://pandas.pydata.org/>`_,
 `Astropy <https://www.astropy.org/>`_,
-`scikit-learn <https://scikit-learn.org/stable//>`_.
+`scikit-learn <https://scikit-learn.org/stable/>`_.
 
 These can be installed using pip:
 
