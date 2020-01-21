@@ -168,6 +168,140 @@ def plot_corr(df,y_vars,x_var='Prot',logplotarg=[],logarg=[]):
 
 """--------------------------------------------- RF training and results --------------------------------------------- """
  
+# RF classifier 
+def RFclassifier(df,testF,traind=0.8,ID_on='KID',X_train_ind=[],X_test_ind=[],target_var='Prot_flag',n_estimators=100, criterion='gini', max_depth=None, min_samples_split=2, min_samples_leaf=1, min_weight_fraction_leaf=0.0, max_features='auto', max_leaf_nodes=None, min_impurity_decrease=0.0, min_impurity_split=None, bootstrap=True, oob_score=False, n_jobs=None, random_state=None, verbose=0, warm_start=False, class_weight=None, ccp_alpha=0.0, max_samples=None):
+    """Train RF regression model and perform cross-validation test. 
+    
+    It uses scikit-learn Random Forest regressor model. All default hyper-parameters are taken from the scikit-learn model that user can change by adding in optional inputs. More details on hyper-parameters, see https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestRegressor.html. To use the module to train a RF model to predict rotation period, input a pandas dataFrame with column names as well as a list of attribute names. 
+    
+    Args:
+      df ([Panda dataFrame]): DataFrame contains all variables needed
+      testF ([string list]): List of feature names used to train
+      traind (Optinal [float]): Fraction of data use to train, the rest will be used to perform cross-validation test (default 0.8)
+      ID_on (Optional [string]): What is the star identifier column name (default 'KID')
+      X_train_ind (Optional [list]): List of *ID_on* for training set, if not specified, take random *traind* fraction of indexes from *ID_on* column
+      X_test_ind (Optional [list]): List of *ID_on* for testing set, if not specified, take the remaining (1-*traind*) fraction of indexes from *ID_on* column that is not in the training set (*X_train_ind*)
+      target_var (Optional [string]): Label column name (default 'Prot_flag')
+      
+    Returns: 
+      (tuple): tuple containing:
+       
+        regr: Sklearn RF regressor model (attributes see https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestRegressor.html)
+        actrualF ([string list]): Actrual features used
+        importance ([float list]): Impurity-based feature importance ordering as *actrualF*
+        ID_train ([list]): List of *ID_on* used for training set 
+        ID_test ([list]): List of *ID_on* used for testing set
+        predictp ([float list]): List of prediction on testing set
+        X_test ([matrix]): Matrix used to predict label values for testing set
+        y_test ([array-like]): Array of true label values of testing set
+        X_train ([matrix]): Matrix used to predict label values for training set
+        y_train ([array-like]): Array of true label values of training set
+      
+      
+    """
+   
+    print('Simpliest example:\n regr,importance,actrualF,ID_train,ID_test,predictp,ave_chi,MRE_val,X_test,y_test,X_train,y_train = RFregressor(df,testF)\n')
+
+    if len(X_train_ind)==0:
+        print('Fraction of data used to train:',traind)
+    else:
+        print('Training KID specified!\n')
+        print('Estimated fraction of data used to train:',float(len(X_train_ind))/float(len(df[target_var])))
+    print('# of Features attempt to train:',len(testF))
+    print('Features attempt to train:',testF)
+
+    fl=len(df.columns) # how many features
+    keys=range(fl)
+    flib=dict(zip(keys, df.columns))
+    
+    featl_o=len(df[target_var]) # old feature length before dropping
+    
+    actrualF=[] # actrual feature used
+    # fill in feature array
+    lenX=0
+    missingf=[]
+    for i in df.columns:
+        feature=df[i].values
+        if (type(feature[0]) is not str) and (i in testF):
+            if sum(np.isnan(feature))<0.1*featl_o:
+                lenX=lenX+1
+                actrualF.append(i)
+            else:
+                missingf.append(i)
+            
+    X=df[actrualF]
+    X=X.replace([np.inf, -np.inf], np.nan)
+    X=X.dropna()
+
+    featl=np.shape(X)[0]
+    #print(featl)
+    print(str(featl_o)+' stars in dataframe!')
+    if len(missingf)!=0:
+        print('Missing features:',missingf)
+    if (featl_o-featl)!=0:
+        print('Missing '+ str(featl_o-featl)+' stars from null values in data!\n')
+
+    print(str(featl)+' total stars used for RF!')
+    
+
+    #print(X_train_ind)
+
+    if len(X_train_ind)==0:
+        # output
+        y=df[target_var][X.index].values
+        y_err=df[target_var_err][X.index].values
+        ID_ar=df[ID_on][X.index].values
+        X=X.values
+	
+        Ntrain = int(traind*featl)
+        # Choose stars at random and split.
+        shuffle_inds = np.arange(len(y))
+        np.random.shuffle(shuffle_inds)
+        train_inds = shuffle_inds[:Ntrain]
+        test_inds = shuffle_inds[Ntrain:]
+	
+        y_train, y_train_err, ID_train, X_train = y[train_inds], y_err[train_inds],ID_ar[train_inds],X[train_inds, :]
+        y_test, y_test_err, ID_test, X_test = y[test_inds], y_err[test_inds],ID_ar[test_inds],X[test_inds, :]
+	
+        test_inds,y_test, y_test_err, ID_test, X_test=zip(*sorted(zip(test_inds,y_test, y_test_err, ID_test, X_test)))
+        test_inds=np.array(test_inds)
+        y_test=np.array(y_test)
+        y_test_err=np.array(y_test_err)
+        ID_test=np.array(ID_test)
+        X_test=np.asarray(X_test)
+	
+    else:
+        datafT=df.loc[X.index].loc[df[ID_on].isin(X_train_ind)]
+        datafTes=df.loc[X.index].loc[df[ID_on].isin(X_test_ind)]
+        y_train, y_train_err,X_train = datafT.Prot.values, datafT.Prot_err.values,X.loc[df[ID_on].isin(X_train_ind)].values
+        y_test, y_test_err,X_test = datafTes.Prot.values, datafTes.Prot_err.values,X.loc[df[ID_on].isin(X_test_ind)].values
+    print(str(len(y_train))+' training stars!')
+
+
+
+    # run random forest
+    regr = RandomForestRegressor(n_estimators=n_estimators, criterion=criterion, max_depth=max_depth, min_samples_split=min_samples_split, min_samples_leaf=min_samples_leaf, min_weight_fraction_leaf=min_weight_fraction_leaf, max_features=max_features, max_leaf_nodes=max_leaf_nodes, min_impurity_decrease=min_impurity_decrease, min_impurity_split=min_impurity_split, bootstrap=bootstrap, oob_score=oob_score, n_jobs=n_jobs, random_state=random_state, verbose=verbose, warm_start=warm_start, class_weight=class_weight, ccp_alpha=ccp_alpha, max_samples=max_samples)
+    regr.fit(X_train, y_train)  
+    
+    
+
+    # get the importance of each feature
+    importance=regr.feature_importances_
+    
+    print('Finished training! Making predictions!')
+    # make prediction
+    predictp=regr.predict(X_test)
+    print('Finished predicting!')
+     
+    if len(X_train_ind)!=0:
+        ID_train=datafT[ID_on].values
+        ID_test=datafTes[ID_on].values
+        ID_train=[int(i) for i in ID_train]
+        ID_test=[int(i) for i in ID_test]
+    print('Finished!')
+    return regr,importance,actrualF,ID_train,ID_test,predictp,X_test,y_test,X_train,y_train
+	
+# RF regressor	 
 def RFregressor(df,testF,traind=0.8,ID_on='KID',X_train_ind=[],X_test_ind=[],target_var='Prot',target_var_err='Prot_err',chisq_out=False,MREout=False,n_estimators=100, criterion='mse', max_depth=None, min_samples_split=2, min_samples_leaf=1, min_weight_fraction_leaf=0.0, max_features='auto', max_leaf_nodes=None, min_impurity_decrease=0.0, min_impurity_split=None, bootstrap=True, oob_score=False, n_jobs=1, random_state=None, verbose=0, warm_start=False):
     """Train RF regression model and perform cross-validation test. 
     
