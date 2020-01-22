@@ -15,7 +15,7 @@ Dependencies
 
 The dependencies of *Astraea* are
 `NumPy <http://www.numpy.org/>`_,
-`matplotlib.pyplot <https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.pyplot.html>`_,
+`matplotlib <https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.pyplot.html>`_,
 `pandas <https://pandas.pydata.org/>`_,
 `Astropy <https://www.astropy.org/>`_,
 `scikit-learn <https://scikit-learn.org/stable/>`_.
@@ -24,5 +24,5 @@ These can be installed using pip:
 
 .. code-block:: bash
 
-    pip install numpy matplotlib.pyplot pandas Astropy scikit-learn
+    pip install numpy matplotlib pandas Astropy scikit-learn
 
