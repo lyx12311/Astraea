@@ -324,17 +324,28 @@ def RFregressor(df,testF,traind=0.8,ID_on='KID',X_train_ind=[],X_test_ind=[],tar
       (tuple): tuple containing:
        
         regr: Sklearn RF regressor model (attributes see https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestRegressor.html)
-        actrualF ([string list]): Actrual features used
-        importance ([float list]): Impurity-based feature importance ordering as *actrualF*
-        ID_train ([list]): List of *ID_on* used for training set 
-        ID_test ([list]): List of *ID_on* used for testing set
-        predictp ([float list]): List of prediction on testing set
-        ave_chi ([float]): Average chisq on cross-validation (testing) set
-        MRE_val ([float]): Median relative error on cross-validation (testing) set 
-        X_test ([matrix]): Matrix used to predict label values for testing set
-        y_test ([array-like]): Array of true label values of testing set
-        X_train ([matrix]): Matrix used to predict label values for training set
-        y_train ([array-like]): Array of true label values of training set
+        
+	actrualF ([string list]): Actrual features used
+        
+	importance ([float list]): Impurity-based feature importance ordering as *actrualF*
+        
+	ID_train ([list]): List of *ID_on* used for training set 
+        
+	ID_test ([list]): List of *ID_on* used for testing set
+        
+	predictp ([float list]): List of prediction on testing set
+        
+	ave_chi ([float]): Average chisq on cross-validation (testing) set
+        
+	MRE_val ([float]): Median relative error on cross-validation (testing) set 
+        
+	X_test ([matrix]): Matrix used to predict label values for testing set
+        
+	y_test ([array-like]): Array of true label values of testing set
+        
+	X_train ([matrix]): Matrix used to predict label values for training set
+        
+	y_train ([array-like]): Array of true label values of training set
       
       
     """
@@ -460,14 +471,16 @@ def RFregressor(df,testF,traind=0.8,ID_on='KID',X_train_ind=[],X_test_ind=[],tar
 
 
 # for plotting results for importance and predict vs true
-def plot_result(actrualF,importance,prediction,y_test,y_test_err=[],topn=20):
+def plot_result(actrualF,importance,prediction,y_test,y_test_err=[],topn=20,MS=3):
     """Plot impurity-based feature importance as well as predicted values vs true values for a random forest model
     
     Args:
       actrualF ([array-like]): Feature used (from function output of RFregressor())
       importance ([array-like]): importance of the model (from function output of RFregressor())
-      PreVal ([array-like]): Predicted values (from function output of RFregressor())
-      TrueVal_err (Optional [array-like]): Errors for true values (from function output of RFregressor())
+      prediction ([array-like]): Predicted values (from function output of RFregressor())
+      y_test ([array-like]): true values (from function output of RFregressor())
+      y_test_err (Optional [array-like]): Errors for true values (from function output of RFregressor())
+      MS (Optional [int]): Markersize for plotting true vs predicted values
     """
     
     topn=min([topn,len(actrualF)])
@@ -499,7 +512,7 @@ def plot_result(actrualF,importance,prediction,y_test,y_test_err=[],topn=20):
         plt.plot(sorted(prediction),sorted(prediction),'k-',label='y=x')
         plt.plot(sorted(prediction),sorted(1.1*prediction),'b--',label='10% Error')
         plt.plot(sorted(prediction),sorted(0.9*prediction),'b--')
-        plt.plot(y_test,prediction,'r.',Markersize=3,alpha=0.2)
+        plt.plot(y_test,prediction,'r.',Markersize=MS,alpha=0.2)
         plt.ylabel('Predicted Period')
         plt.xlabel('True Period')
         plt.ylim([0,max(prediction)])
@@ -511,7 +524,7 @@ def plot_result(actrualF,importance,prediction,y_test,y_test_err=[],topn=20):
         plt.plot(sorted(prediction),sorted(prediction),'k-',label='y=x')
         plt.plot(sorted(prediction),sorted(1.1*prediction),'b--',label='10% Error')
         plt.plot(sorted(prediction),sorted(0.9*prediction),'b--')
-        plt.plot(y_test,prediction,'r.',Markersize=3,alpha=0.2)
+        plt.plot(y_test,prediction,'r.',Markersize=MS,alpha=0.2)
         plt.ylabel('Predicted Period')
         plt.xlabel('True Period')
         plt.ylim([0,max(prediction)])
@@ -521,13 +534,13 @@ def plot_result(actrualF,importance,prediction,y_test,y_test_err=[],topn=20):
         plt.plot(sorted(prediction),sorted(prediction),'k-',label='y=x')
         plt.plot(sorted(prediction),sorted(1.1*prediction),'b--',label='10% Error')
         plt.plot(sorted(prediction),sorted(0.9*prediction),'b--')
-        plt.errorbar(y_test,prediction,xerr=y_test_err,fmt='r.',Markersize=3,alpha=0.2)
+        plt.errorbar(y_test,prediction,xerr=y_test_err,fmt='r.',Markersize=MS,alpha=0.2)
         plt.ylabel('Predicted Period')
         plt.xlabel('True Period')
         plt.ylim([0,max(prediction)])
         plt.xlim([0,max(prediction)])
         plt.legend()
     
-    avstedv=MRE(y_test,prediction,y_test_err)
-    print('Median relative error is: ',avstedv)
+        avstedv=MRE(y_test,prediction,y_test_err)
+        print('Median relative error is: ',avstedv)
     
