@@ -11,5 +11,5 @@ setup(name='Astraea',
       author_email='lucylulu12311@gmail.com',
       license=' ',
       packages=['Astraea'],
-      install_requires=['numpy', 'pandas', 'astropy', 'sklearn'],
+      install_requires=['numpy', 'pandas', 'astropy', 'sklearn','matplotlib'],
       zip_safe=False)
