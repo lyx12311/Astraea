@@ -1,7 +1,7 @@
 Installation
 ============
 
-From source:
+From GitHub source:
 
 .. code-block:: bash
 
@@ -11,7 +11,7 @@ From source:
 
 
 Dependencies
-------------
+============
 
 The dependencies of *Astraea* are
 `NumPy <http://www.numpy.org/>`_,
