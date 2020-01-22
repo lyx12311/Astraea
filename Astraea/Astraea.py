@@ -323,9 +323,9 @@ def RFregressor(df,testF,traind=0.8,ID_on='KID',X_train_ind=[],X_test_ind=[],tar
     Returns: 
       (tuple): tuple containing:
        
-        | regr: Sklearn RF regressor model (attributes see https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestRegressor.html)
-	| actrualF ([string list]): Actrual features used
-	| importance ([float list]): Impurity-based feature importance ordering as *actrualF*
+        :regr: Sklearn RF regressor model (attributes see https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestRegressor.html)
+	:actrualF ([string list]): Actrual features used
+	:importance ([float list]): Impurity-based feature importance ordering as *actrualF*
 	ID_train ([list]): List of *ID_on* used for training set 
 	ID_test ([list]): List of *ID_on* used for testing set
 	predictp ([float list]): List of prediction on testing set
