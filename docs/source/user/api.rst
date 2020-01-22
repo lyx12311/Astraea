@@ -5,10 +5,10 @@
 API documentation
 =================
 
-.. autofunction:: Astraea.plot_result
-
 .. autofunction:: Astraea.RFclassifier
 
 .. autofunction:: Astraea.RFregressor
+
+.. autofunction:: Astraea.plot_result
 
 
