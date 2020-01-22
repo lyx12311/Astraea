@@ -29,7 +29,6 @@ author = 'Yuxi(Lucy) Lu'
 # ones.
 extensions = [
     'sphinx.ext.autodoc',                                                   
-    'sphinx.ext.doctest', 
     'sphinx.ext.mathjax',
     'sphinx.ext.viewcode',
     'sphinx.ext.napoleon',

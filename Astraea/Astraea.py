@@ -323,15 +323,15 @@ def RFregressor(df,testF,traind=0.8,ID_on='KID',X_train_ind=[],X_test_ind=[],tar
     Returns: 
       (tuple): tuple containing:
        
-        regr: Sklearn RF regressor model (attributes see https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestRegressor.html)\n
-	actrualF ([string list]): Actrual features used\n
-	importance ([float list]): Impurity-based feature importance ordering as *actrualF*
-	ID_train ([list]): List of *ID_on* used for training set 
-	ID_test ([list]): List of *ID_on* used for testing set
-	predictp ([float list]): List of prediction on testing set
-	ave_chi ([float]): Average chisq on cross-validation (testing) set
-	MRE_val ([float]): Median relative error on cross-validation (testing) set 
-	X_test ([matrix]): Matrix used to predict label values for testing set
+        :regr: Sklearn RF regressor model (attributes see https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestRegressor.html)
+	:actrualF ([string list]): Actrual features used
+	:importance ([float list]): Impurity-based feature importance ordering as *actrualF*
+	|ID_train ([list]): List of *ID_on* used for training set 
+	|ID_test ([list]): List of *ID_on* used for testing set
+	|predictp ([float list]): List of prediction on testing set
+	ave_chi ([float]): Average chisq on cross-validation (testing) set\n
+	MRE_val ([float]): Median relative error on cross-validation (testing) set\n 
+	X_test ([matrix]): Matrix used to predict label values for testing set\n
 	y_test ([array-like]): Array of true label values of testing set
 	X_train ([matrix]): Matrix used to predict label values for training set
 	y_train ([array-like]): Array of true label values of training set
