@@ -28,8 +28,7 @@ author = 'Yuxi(Lucy) Lu'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    'sphinx.ext.autodoc',
-    'sphinxcontrib.napoleon',                                                   
+    'sphinx.ext.autodoc',                                                   
     'sphinx.ext.doctest', 
     'sphinx.ext.mathjax',
     'sphinx.ext.viewcode',
