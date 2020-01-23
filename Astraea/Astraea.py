@@ -198,9 +198,12 @@ def RFclassifier(df,testF,modelout=False,traind=0.8,ID_on='KID',X_train_ind=[],X
       target_var (Optional [string]): Label column name (default 'Prot_flag')
       
     Returns: 
-      (tuple): tuple containing:
-       
-        :regr: Sklearn RF regressor model (attributes see https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestRegressor.html)
+      <RF model>, <pandas.Series>:
+      
+      :regr: Sklearn RF classifier model (attributes see https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html)
+      
+      :<pandas.Series> containing:
+         
         :actrualF ([string list]): Actrual features used
         :importance ([float list]): Impurity-based feature importance ordering as *actrualF*
         :ID_train ([list]): List of *ID_on* used for training set 
@@ -340,11 +343,11 @@ def RFregressor(df,testF,modelout=False,traind=0.8,ID_on='KID',X_train_ind=[],X_
       MREout (optional [bool]): If true, only output median relative error. If both *chisq_out* and *MREout* are true, then output only these two values
       
     Returns: 
-      <RF model>,<pandas.Series>:
+      <RF model>, <pandas.Series>:
       
       :regr: Sklearn RF regressor model (attributes see https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestRegressor.html)
       
-      :<pandas.Series>: containing:
+      :<pandas.Series> containing:
        
         :actrualF ([string list]): Actrual features used
 	:importance ([float list]): Impurity-based feature importance ordering as *actrualF*
