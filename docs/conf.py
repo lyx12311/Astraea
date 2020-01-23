@@ -30,7 +30,7 @@ import subprocess
 import glob
 import os
 
-for fn in glob.glob("_static/notebooks/*.ipynb"):
+for fn in glob.glob("_static/*.ipynb"):
     name = os.path.splitext(os.path.split(fn)[1])[0]
     outfn = os.path.join("tutorials", name + ".rst")
     print("Building {0}...".format(name))
