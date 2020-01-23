@@ -340,9 +340,11 @@ def RFregressor(df,testF,modelout=False,traind=0.8,ID_on='KID',X_train_ind=[],X_
       MREout (optional [bool]): If true, only output median relative error. If both *chisq_out* and *MREout* are true, then output only these two values
       
     Returns: 
-      regr: Sklearn RF regressor model (attributes see https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestRegressor.html)
+      <RF model>,<pandas.Series>:
       
-      <pandas.Series>: containing:
+      :regr: Sklearn RF regressor model (attributes see https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestRegressor.html)
+      
+      :<pandas.Series>: containing:
        
         :actrualF ([string list]): Actrual features used
 	:importance ([float list]): Impurity-based feature importance ordering as *actrualF*
