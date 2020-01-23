@@ -10,10 +10,10 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
-import os
-import sys
-dn = os.path.dirname
-sys.path.insert(0, dn(dn(dn(os.path.abspath(__file__)))))
+#import os
+#import sys
+#dn = os.path.dirname
+#sys.path.insert(0, dn(dn(dn(os.path.abspath(__file__)))))
 
 
 autodoc_mock_imports = [
