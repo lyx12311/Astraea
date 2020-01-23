@@ -5,9 +5,11 @@
 
 Astraea
 ===================================
-*Astraea* is a tool to calculate rotation period from various features provided. It is intended to predict long rotation periods from short lightcurves from TESS (27-day lightcurves).
+*Astraea* is a package to train Random Forest (RF) models on datasets. It provides tools to train RF classifiers and regressors as well as perform simple cross-validation tests and performance plots on the test set.
 
-Example usage
+It was first developed to calculate rotation period of stars from various stellar properties provided and is intended to predict long rotation periods (e.g. that of M-dwarfs) from short TESS  lightcurves (27-day lightcurves). 
+
+We provide access to trained models on stars from the catalog by `McQuillian et all. (2014) <https://arxiv.org/abs/1402.5694>`_. User can predict whether the rotation period can be recovered and measure recoverable rotation periods for the stars in the Kepler field by using their temperatures, colors, kinematics, etc. 
 
 .. Contents:
 
@@ -30,4 +32,3 @@ Tutorials
 
 License & attribution
 ---------------------
-
