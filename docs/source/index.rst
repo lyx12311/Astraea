@@ -28,7 +28,7 @@ Tutorials
 .. toctree::
    :maxdepth: 2
 
-   tutorials/SampleExamples.ipynb
+   tutorials/Tutorial.ipynb
 
 License & attribution
 ---------------------
