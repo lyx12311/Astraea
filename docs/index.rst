@@ -28,7 +28,7 @@ Tutorials
 .. toctree::
    :maxdepth: 2
 
-   tutorials/Tutorial
+   tutorial/Tutorial
 
 License & attribution
 ---------------------
