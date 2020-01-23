@@ -16,13 +16,13 @@
 #sys.path.insert(0, dn(dn(dn(os.path.abspath(__file__)))))
 
 
-autodoc_mock_imports = [
-    "numpy",
-    "scikit-learn",
-    "pandas",
-    "astropy",
-    "matplotlib",
-]
+#autodoc_mock_imports = [
+#    "numpy",
+#    "scikit-learn",
+#    "pandas",
+#    "astropy",
+#    "matplotlib",
+#]
 
 
 # convert tutorials
