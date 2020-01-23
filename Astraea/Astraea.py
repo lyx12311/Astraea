@@ -9,8 +9,9 @@ import astropy.utils as au
 import astropy.coordinates as coord
 
 from sklearn.ensemble import RandomForestRegressor
+from sklearn.externals import joblib
     
-"""--------------------------------------------- function to download RF ---------------------------------------------"""
+"""--------------------------------------------- start of function to download/load RF ---------------------------------------------"""
 def download_RF_class(url='https://zenodo.org/record/3620729/files/RF_Class_model.sav?download=1'):
     os.system('wget '+url)
     os.system('mv RF_Class_model.sav?download=1 ./data/RF_Class_model.sav')
@@ -33,9 +34,20 @@ def load_RF():
         download_RF_regr_1est()
     if not os.path.exists('./data/RF_Regre_model_1est_flicker.sav'):
         download_RF_regr_100est()
+    return joblib.load('./data/RF_Class_model.sav'),joblib.load('./data/RF_Regre_model_100est_flicker.sav'),joblib.load('./data/RF_Regre_model_1est_flicker.sav')
 
-"""--------------------------------------------- end of function to download RF ---------------------------------------------"""
+"""--------------------------------------------- end of function to download/load RF ---------------------------------------------"""
+
+
+
+"""--------------------------------------------- start of function to predict rotation period from RF ---------------------------------------------"""
+
+
+"""--------------------------------------------- end of function to predict rotation period from RF ---------------------------------------------"""
+
+
     
+
 """--------------------------------------------- star of functions not related to RF --------------------------------------------- """
 # calcualte v_t, v_b by passing in a dataframe with parallax, pmra, pmdec, ra, dec
 def CalcV(df):
@@ -97,7 +109,7 @@ def plot_corr(df,y_vars,x_var='Prot',logplotarg=[],logarg=[]):
     """Plot correlations on one variable vs other variables specified by user
     
     Args:
-      df ([Panda dataFrame]): DataFrame contains all variables needed
+      df ([Panda DataFrame]): DataFrame contains all variables needed
       y_vars ([string list]): List of variables on y axis
       x_var (optional [string]): Value for all x axis 
       logplotarg (Optional [string list]): Variables to plot in loglog scale
@@ -170,16 +182,17 @@ def plot_corr(df,y_vars,x_var='Prot',logplotarg=[],logarg=[]):
 """--------------------------------------------- RF training and results --------------------------------------------- """
  
 # RF classifier 
-def RFclassifier(df,testF,traind=0.8,ID_on='KID',X_train_ind=[],X_test_ind=[],target_var='Prot_flag',n_estimators=100, criterion='gini', max_depth=None, min_samples_split=2, min_samples_leaf=1, min_weight_fraction_leaf=0.0, max_features='auto', max_leaf_nodes=None, min_impurity_decrease=0.0, min_impurity_split=None, bootstrap=True, oob_score=False, n_jobs=None, random_state=None, verbose=0, warm_start=False, class_weight=None, ccp_alpha=0.0, max_samples=None):
+def RFclassifier(df,testF,modelout=False,traind=0.8,ID_on='KID',X_train_ind=[],X_test_ind=[],target_var='Prot_flag',n_estimators=100, criterion='gini', max_depth=None, min_samples_split=2, min_samples_leaf=1, min_weight_fraction_leaf=0.0, max_features='auto', max_leaf_nodes=None, min_impurity_decrease=0.0, min_impurity_split=None, bootstrap=True, oob_score=False, n_jobs=None, random_state=None, verbose=0, warm_start=False, class_weight=None, ccp_alpha=0.0, max_samples=None):
     """Train RF classifier model and predict values for cross-validation dataset. 
     
     It uses scikit-learn Random Forest classifier model. All default hyper-parameters are taken from the scikit-learn model that user can change by adding in optional inputs. More details on hyper-parameters, see https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html. To use the module to train a RF model to predict rotation period, input a pandas dataFrame with column names as well as a list of attribute names. 
     
     Args:
-      df ([Panda dataFrame]): DataFrame contains all variables needed
+      df ([Panda DataFrame]): DataFrame contains all variables needed
       testF ([string list]): List of feature names used to train
+      modelout (Optional [bool]): Whether to only output the trained model 
       traind (Optinal [float]): Fraction of data use to train, the rest will be used to perform cross-validation test (default 0.8)
-      ID_on (Optional [string]): What is the star identifier column name (default 'KID')
+      ID_on (Optional [string]): What is the star identifier column name (default 'KID'). If specified ID column does not exist, it will just take the index as ID
       X_train_ind (Optional [list]): List of *ID_on* for training set, if not specified, take random *traind* fraction of indexes from *ID_on* column
       X_test_ind (Optional [list]): List of *ID_on* for testing set, if not specified, take the remaining (1-*traind*) fraction of indexes from *ID_on* column that is not in the training set (*X_train_ind*)
       target_var (Optional [string]): Label column name (default 'Prot_flag')
@@ -211,6 +224,11 @@ def RFclassifier(df,testF,traind=0.8,ID_on='KID',X_train_ind=[],X_test_ind=[],ta
     print('# of Features attempt to train:',len(testF))
     print('Features attempt to train:',testF)
 
+    # check if there is an ID
+    if ID_on not in df.columns:
+        df[ID_on]=range(len(df))
+        print('ID column not found, using index as ID!')	
+    
     fl=len(df.columns) # how many features
     keys=range(fl)
     flib=dict(zip(keys, df.columns))
@@ -300,19 +318,20 @@ def RFclassifier(df,testF,traind=0.8,ID_on='KID',X_train_ind=[],X_test_ind=[],ta
         ID_train=[int(i) for i in ID_train]
         ID_test=[int(i) for i in ID_test]
     print('Finished!')
-    return regr,importance,actrualF,ID_train,ID_test,predictp,X_test,y_test,X_train,y_train
+    return regr,pd.Series([importance,actrualF,ID_train,ID_test,predictp,X_test,y_test,X_train,y_train],index=['importance','actrualF','ID_train','ID_test','prediction','X_test','y_test','X_train','y_train'])
 	
 # RF regressor	 
-def RFregressor(df,testF,traind=0.8,ID_on='KID',X_train_ind=[],X_test_ind=[],target_var='Prot',target_var_err='Prot_err',chisq_out=False,MREout=False,n_estimators=100, criterion='mse', max_depth=None, min_samples_split=2, min_samples_leaf=1, min_weight_fraction_leaf=0.0, max_features='auto', max_leaf_nodes=None, min_impurity_decrease=0.0, min_impurity_split=None, bootstrap=True, oob_score=False, n_jobs=1, random_state=None, verbose=0, warm_start=False):
+def RFregressor(df,testF,modelout=False,traind=0.8,ID_on='KID',X_train_ind=[],X_test_ind=[],target_var='Prot',target_var_err='Prot_err',chisq_out=False,MREout=False,n_estimators=100, criterion='mse', max_depth=None, min_samples_split=2, min_samples_leaf=1, min_weight_fraction_leaf=0.0, max_features='auto', max_leaf_nodes=None, min_impurity_decrease=0.0, min_impurity_split=None, bootstrap=True, oob_score=False, n_jobs=1, random_state=None, verbose=0, warm_start=False):
     """Train RF regression model and perform cross-validation test. 
     
     It uses scikit-learn Random Forest regressor model. All default hyper-parameters are taken from the scikit-learn model that user can change by adding in optional inputs. More details on hyper-parameters, see https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestRegressor.html. To use the module to train a RF model to predict rotation period, input a pandas dataFrame with column names as well as a list of attribute names. 
     
     Args:
-      df ([Panda dataFrame]): DataFrame contains all variables needed
+      df ([Panda DataFrame]): DataFrame contains all variables needed
       testF ([string list]): List of feature names used to train
+      modelout (Optional [bool]): Whether to only output the trained model 
       traind (Optinal [float]): Fraction of data use to train, the rest will be used to perform cross-validation test (default 0.8)
-      ID_on (Optional [string]): What is the star identifier column name (default 'KID')
+      ID_on (Optional [string]): What is the star identifier column name (default 'KID'). If specified ID column does not exist, it will just take the index as ID
       X_train_ind (Optional [list]): List of *ID_on* for training set, if not specified, take random *traind* fraction of indexes from *ID_on* column
       X_test_ind (Optional [list]): List of *ID_on* for testing set, if not specified, take the remaining (1-*traind*) fraction of indexes from *ID_on* column that is not in the training set (*X_train_ind*)
       target_var (Optional [string]): Label column name (default 'Prot')
@@ -321,10 +340,11 @@ def RFregressor(df,testF,traind=0.8,ID_on='KID',X_train_ind=[],X_test_ind=[],tar
       MREout (optional [bool]): If true, only output median relative error. If both *chisq_out* and *MREout* are true, then output only these two values
       
     Returns: 
-      (tuple): tuple containing:
+      :regr: Sklearn RF regressor model (attributes see https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestRegressor.html)
+      
+      :<pandas.Series>: containing:
        
-        :regr: Sklearn RF regressor model (attributes see https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestRegressor.html)
-	:actrualF ([string list]): Actrual features used
+        :actrualF ([string list]): Actrual features used
 	:importance ([float list]): Impurity-based feature importance ordering as *actrualF*
 	:ID_train ([list]): List of *ID_on* used for training set 
 	:ID_test ([list]): List of *ID_on* used for testing set
@@ -348,6 +368,11 @@ def RFregressor(df,testF,traind=0.8,ID_on='KID',X_train_ind=[],X_test_ind=[],tar
         print('Estimated fraction of data used to train:',float(len(X_train_ind))/float(len(df[target_var])))
     print('# of Features attempt to train:',len(testF))
     print('Features attempt to train:',testF)
+
+    # check if there is an ID
+    if ID_on not in df.columns:
+        df[ID_on]=range(len(df))
+        print('ID column not found, using index as ID!')
 
     fl=len(df.columns) # how many features
     keys=range(fl)
@@ -456,11 +481,11 @@ def RFregressor(df,testF,traind=0.8,ID_on='KID',X_train_ind=[],X_test_ind=[],tar
             ID_train=[int(i) for i in ID_train]
             ID_test=[int(i) for i in ID_test]
         print('Finished!')
-        return regr,importance,actrualF,ID_train,ID_test,predictp,ave_chi,MRE_val,X_test,y_test,X_train,y_train
+        return regr,pd.Series([importance,actrualF,ID_train,ID_test,predictp,ave_chi,MRE_val,X_test,y_test,X_train,y_train],index=['importance','actrualF','ID_train','ID_test','prediction','ave_chi2','MRE','X_test','y_test','X_train','y_train'])
 
 
 # for plotting results for importance and predict vs true
-def plot_result(actrualF,importance,prediction,y_test,y_test_err=[],topn=20,MS=3):
+def plot_result(actrualF,importance,prediction,y_test,y_test_err=[],topn=20,MS=3,labelName='Period'):
     """Plot impurity-based feature importance as well as predicted values vs true values for a random forest model
     
     Args:
@@ -469,9 +494,48 @@ def plot_result(actrualF,importance,prediction,y_test,y_test_err=[],topn=20,MS=3
       prediction ([array-like]): Predicted values (from function output of RFregressor())
       y_test ([array-like]): true values (from function output of RFregressor())
       y_test_err (Optional [array-like]): Errors for true values (from function output of RFregressor())
+      topn (Optional [int]): How many most important features to plot
       MS (Optional [int]): Markersize for plotting true vs predicted values
+      labelName (Optional [string]): Label name
+    
+    Returns:
+      <matplotlib.plot>: importance plot as well as true vs prediction plot
     """
     
+    plt.rcParams.keys()
+    plt.rc('font', family='serif')
+    params = {
+   'axes.labelsize': 30,
+   'axes.linewidth': 1.5,
+   'legend.fontsize': 25,
+   'legend.frameon': False,
+   'lines.linewidth': 2,
+   'xtick.direction': 'in',
+   'xtick.labelsize': 25,
+   'xtick.major.bottom': True,
+   'xtick.major.pad': 10,
+   'xtick.major.size': 10,
+   'xtick.major.width': 1,
+   'xtick.minor.bottom': True,
+   'xtick.minor.pad': 3.5,
+   'xtick.minor.size': 5,
+   'xtick.minor.top': True,
+   'xtick.minor.visible': True,
+   'xtick.minor.width': 1,
+   'xtick.top': True,
+   'ytick.direction': 'in',
+   'ytick.labelsize': 25,
+   'ytick.major.pad': 10,
+   'ytick.major.size': 10,
+   'ytick.major.width': 1,
+   'ytick.minor.pad': 3.5,
+   'ytick.minor.size': 5,
+   'ytick.minor.visible': True,
+   'ytick.minor.width': 1,
+   'ytick.right': True,
+    }
+    plt.rcParams.update(params)
+
     topn=min([topn,len(actrualF)])
     # zip the importance with its feature name
     list1 = list(zip(actrualF,importance))
@@ -504,8 +568,8 @@ def plot_result(actrualF,importance,prediction,y_test,y_test_err=[],topn=20,MS=3
         plt.plot(y_test,prediction,'r.',Markersize=MS,alpha=0.2)
         plt.ylabel('Predicted Period')
         plt.xlabel('True Period')
-        plt.ylim([0,max(prediction)])
-        plt.xlim([0,max(prediction)])
+        plt.ylim([min(prediction),max(prediction)])
+        plt.xlim([min(prediction),max(prediction)])
         plt.legend()
     else:
         plt.figure(figsize=(20,8))
@@ -516,8 +580,8 @@ def plot_result(actrualF,importance,prediction,y_test,y_test_err=[],topn=20,MS=3
         plt.plot(y_test,prediction,'r.',Markersize=MS,alpha=0.2)
         plt.ylabel('Predicted Period')
         plt.xlabel('True Period')
-        plt.ylim([0,max(prediction)])
-        plt.xlim([0,max(prediction)])
+        plt.ylim([min(prediction),max(prediction)])
+        plt.xlim([min(prediction),max(prediction)])
         plt.legend()
         plt.subplot(1,2,2)
         plt.plot(sorted(prediction),sorted(prediction),'k-',label='y=x')
@@ -526,8 +590,8 @@ def plot_result(actrualF,importance,prediction,y_test,y_test_err=[],topn=20,MS=3
         plt.errorbar(y_test,prediction,xerr=y_test_err,fmt='r.',Markersize=MS,alpha=0.2)
         plt.ylabel('Predicted Period')
         plt.xlabel('True Period')
-        plt.ylim([0,max(prediction)])
-        plt.xlim([0,max(prediction)])
+        plt.ylim([min(prediction),max(prediction)])
+        plt.xlim([min(prediction),max(prediction)])
         plt.legend()
     
         avstedv=MRE(y_test,prediction,y_test_err)
