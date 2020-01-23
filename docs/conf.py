@@ -10,10 +10,10 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
-#import os
-#import sys
-#dn = os.path.dirname
-#sys.path.insert(0, dn(dn(dn(os.path.abspath(__file__)))))
+import os
+import sys
+dn = os.path.dirname
+sys.path.insert(0, dn(dn(dn(os.path.abspath(__file__)))))
 
 
 #autodoc_mock_imports = [
@@ -36,7 +36,7 @@ for fn in glob.glob("_static/*.ipynb"):
     print("Building {0}...".format(name))
     subprocess.check_call(
         "jupyter nbconvert --template tutorial/tutorial_rst --to rst "
-        + fn + " --output-dir tutorials", shell=True)
+        + fn + " --output-dir tutorial", shell=True)
     subprocess.check_call(
         "python fix_internal_links.py " + outfn, shell=True)
 	
