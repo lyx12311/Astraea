@@ -4,6 +4,7 @@
 
 API documentation
 =================
+.. autofunction:: Astraea.
 
 .. autofunction:: Astraea.RFclassifier
 

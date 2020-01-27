@@ -73,21 +73,11 @@ def getKeplerProt(X_pred):
       X_pred ([Pandas DataFrame]): DataFrame contains all variables needed, run Astraea.getTrainF() to print out requirements
       
     Returns: 
-      <pandas.Series>:
-      
-      :regr: Sklearn RF classifier model (attributes see https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html)
-      
-      :<pandas.Series> containing:
-         
-        :actrualF ([string list]): Actrual features used
-        :importance ([float list]): Impurity-based feature importance ordering as *actrualF*
-        :ID_train ([list]): List of *ID_on* used for training set 
-        :ID_test ([list]): List of *ID_on* used for testing set
-        :predictp ([float list]): List of prediction on testing set
-        :X_test ([matrix]): Matrix used to predict label values for testing set
-        :y_test ([array-like]): Array of true label values of testing set
-        :X_train ([matrix]): Matrix used to predict label values for training set
-        :y_train ([array-like]): Array of true label values of training set
+      <pandas.DataFrame> containing:
+   
+        :TrueProt: True rotation period (if avaliable)
+	:Prot_prediction_1est: Period predictions with 1 estimator
+	:Prot_prediction_100est: Period prediction with 100 estimators
       
       
     """
