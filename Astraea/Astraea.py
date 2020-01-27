@@ -30,14 +30,132 @@ def load_RF():
     if not os.path.exists('./data/'):
         os.system('mkdir data')
     if not os.path.exists('./data/RF_Class_model.sav'):
+        print('downloading classifier!')
         download_RF_class()
     if not os.path.exists('./data/RF_Regre_model_100est_flicker.sav'):
+        print('downloading regressor with 1 estimator!')
         download_RF_regr_1est()
     if not os.path.exists('./data/RF_Regre_model_1est_flicker.sav'):
+        print('downloading regressor with 100 estimators!')
         download_RF_regr_100est()
     return joblib.load('./data/RF_Class_model.sav'),joblib.load('./data/RF_Regre_model_100est_flicker.sav'),joblib.load('./data/RF_Regre_model_1est_flicker.sav')
 
 """--------------------------------------------- end of function to download/load RF ---------------------------------------------"""
+
+
+
+"""--------------------------------------------- start of function to use trained RF to get Prot ---------------------------------------------"""
+def FLICKERinstall():
+    os.system('git clone https://github.com/lyx12311/FLICKER.git')
+    os.system('cd FLICKER')
+    os.system('python setup.py install')
+    os.system('cd ..')
+
+def getTrainF():
+    Features_class=['LG_peaks [Lomb-Scargle peak height]', 'Rvar [ppm]', 'parallax [gaia]', 'radius_percentile_lower [gaia]', 'radius_percentile_upper [gaia]', 'phot_g_mean_flux_over_error [gaia]', 'bp_g [gaia]']
+    Features_regr=['teff [gaia]','bp_g [gaia]','lum_val [gaia]','v_tan [CalcV()]','phot_g_mean_flux_over_error [gaia]','v_b [CalcV()]','radius_val [gaia]','b [gaia]','Rvar [ppm]','flicker [FLICKER]']
+    print("classification features are:",Features_class)
+    print("regression features are:",Features_regr)
+    return Features_class,Features_regr
+
+def getKeplerProt(X_pred):
+    """Predict rotation period from trained models. 
+    
+    This function predicts rotation periods for stars in the Kepler field. The models are trained on rotation periods from 
+    `McQuillian et all. (2014) <https://arxiv.org/abs/1402.5694>`_., `Santos et all. (2019) <https://arxiv.org/abs/1908.05222>`_. 
+    and `Garcia et all. <https://arxiv.org/abs/1403.7155>`_.. If the models are not already downloaded, this tool will download 
+    the model which might take a couple of minues. It first passes the stars through a classifier, which identifies what stars 
+    have measureable rotation periods. Then it uses two regressor models (one with 1 estimator and another one with 100 estimators) 
+    to predict rotation periods. If column "Prot" exist, it will also output the true periods associated with the predicted periods.
+    The light curve feature "flicker" can be calculated using software `*FLICKER* <https://flicker.readthedocs.io/en/latest/>`_..
+    
+    Args:
+      X_pred ([Pandas DataFrame]): DataFrame contains all variables needed, run Astraea.getTrainF() to print out requirements
+      
+    Returns: 
+      <pandas.Series>:
+      
+      :regr: Sklearn RF classifier model (attributes see https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html)
+      
+      :<pandas.Series> containing:
+         
+        :actrualF ([string list]): Actrual features used
+        :importance ([float list]): Impurity-based feature importance ordering as *actrualF*
+        :ID_train ([list]): List of *ID_on* used for training set 
+        :ID_test ([list]): List of *ID_on* used for testing set
+        :predictp ([float list]): List of prediction on testing set
+        :X_test ([matrix]): Matrix used to predict label values for testing set
+        :y_test ([array-like]): Array of true label values of testing set
+        :X_train ([matrix]): Matrix used to predict label values for training set
+        :y_train ([array-like]): Array of true label values of training set
+      
+      
+    """
+    # see what features are needed
+    Features_class,Features_regr=getTrainF()
+    
+    # check if satisfy classification features, if not, exit function
+    try:
+        X_pred[Features_class]
+	
+    except KeyError:
+        print("Make sure ['LG_peaks', 'Rvar_TESS', 'parallax', 'radius_percentile_lower', 'radius_percentile_upper', 'phot_g_mean_flux_over_error', 'bp_g'] are in DataFrame for classifier!")
+        print("Exiting...")
+	return None
+    
+    # check if satisfy regressor features
+    try:
+        X_pred[Features_regr]
+    except KeyError:
+        print("Make sure ['teff','bp_g','lum_val','v_tan','phot_g_mean_flux_over_error','v_b','radius_val','b','Rvar','flicker'] are in DataFrame for regressor!")
+        print("Exiting...")
+	return None
+    
+    # load random forest models
+    RF_class,RF_regr_1,RF_regr_100=load_RF()
+    
+    # get subset dropping NAs
+    X_pred_class=X_pred[np.append(Features_regr,Features_class)].dropna()
+    
+    # classify first...
+    print("Total "+str(len(X_pred))+" stars!")
+    print('Classifing '+str(len(X_pred_class))+' stars!')
+    probs = RF_class.predict_proba(X_pred_class[Features_class])
+    preds = probs[:,1]
+    for i in range(len(preds)):
+        if preds[i]<=0.4:
+            preds[i]=0
+        else:
+            preds[i]=1
+    print(str(sum(preds))+' stars have predictable rotation periods ('+ str(float(sum(preds))/float(len(X_pred))*100)+'%)')
+    
+    X_pred_class['Prot_class']=preds
+    
+    # pick out stars that have rotation periods
+    X_pred_regr=X_pred_class[Features_regr]
+    
+    print("Predicting rotation periods!")
+    
+    
+    # predict rotation periods with 1 estimator
+    Prot_predictions_1est=RF_regr_1.predict(X_pred_regr.values())
+    
+    # predict rotation periods with 100 estimator
+    Prot_predictions_100est=RF_regr_100.predict(X_pred_regr.values())
+    
+    try:
+        TrueProt=X_pred_class['Prot']
+        return pd.DataFrame(np.array((TrueProt, Prot_predictions_1est, Prot_predictions_100est)).T,columns=['True Prot','Prot prediction w/ 1 est','Prot prediction w/ 100 est'])	
+    except:
+        print("Can't identify true rotation period! Does not exist or rename column to 'Prot'!")
+        return pd.DataFrame(np.array((Prot_predictions_1est, Prot_predictions_100est)).T,columns=['Prot prediction w/ 1 est','Prot prediction w/ 100 est'])
+    
+    
+    
+
+"""--------------------------------------------- end of function to use trained RF to get Prot ---------------------------------------------"""
+
+
 
 
 
@@ -110,7 +228,7 @@ def plot_corr(df,y_vars,x_var='Prot',logplotarg=[],logarg=[]):
     """Plot correlations on one variable vs other variables specified by user
     
     Args:
-      df ([Panda DataFrame]): DataFrame contains all variables needed
+      df ([Pandas DataFrame]): DataFrame contains all variables needed
       y_vars ([string list]): List of variables on y axis
       x_var (optional [string]): Value for all x axis 
       logplotarg (Optional [string list]): Variables to plot in loglog scale
@@ -189,7 +307,7 @@ def RFclassifier(df,testF,modelout=False,traind=0.8,ID_on='KID',X_train_ind=[],X
     It uses scikit-learn Random Forest classifier model. All default hyper-parameters are taken from the scikit-learn model that user can change by adding in optional inputs. More details on hyper-parameters, see https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html. To use the module to train a RF model to predict rotation period, input a pandas dataFrame with column names as well as a list of attribute names. 
     
     Args:
-      df ([Panda DataFrame]): DataFrame contains all variables needed
+      df ([Pandas DataFrame]): DataFrame contains all variables needed
       testF ([string list]): List of feature names used to train
       modelout (Optional [bool]): Whether to only output the trained model 
       traind (Optinal [float]): Fraction of data use to train, the rest will be used to perform cross-validation test (default 0.8)
@@ -327,7 +445,7 @@ def RFregressor(df,testF,modelout=False,traind=0.8,ID_on='KID',X_train_ind=[],X_
     It uses scikit-learn Random Forest regressor model. All default hyper-parameters are taken from the scikit-learn model that user can change by adding in optional inputs. More details on hyper-parameters, see https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestRegressor.html. To use the module to train a RF model to predict rotation period, input a pandas dataFrame with column names as well as a list of attribute names. 
     
     Args:
-      df ([Panda DataFrame]): DataFrame contains all variables needed
+      df ([Pandas DataFrame]): DataFrame contains all variables needed
       testF ([string list]): List of feature names used to train
       modelout (Optional [bool]): Whether to only output the trained model 
       traind (Optinal [float]): Fraction of data use to train, the rest will be used to perform cross-validation test (default 0.8)
