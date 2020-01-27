@@ -4,7 +4,7 @@
 
 API documentation
 =================
-.. autofunction:: Astraea.
+.. autofunction:: Astraea.getKeplerProt
 
 .. autofunction:: Astraea.RFclassifier
 
