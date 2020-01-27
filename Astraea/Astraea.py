@@ -101,7 +101,7 @@ def getKeplerProt(X_pred):
     except KeyError:
         print("Make sure ['LG_peaks', 'Rvar_TESS', 'parallax', 'radius_percentile_lower', 'radius_percentile_upper', 'phot_g_mean_flux_over_error', 'bp_g'] are in DataFrame for classifier!")
         print("Exiting...")
-	return None
+        return None
     
     # check if satisfy regressor features
     try:
@@ -109,7 +109,7 @@ def getKeplerProt(X_pred):
     except KeyError:
         print("Make sure ['teff','bp_g','lum_val','v_tan','phot_g_mean_flux_over_error','v_b','radius_val','b','Rvar','flicker'] are in DataFrame for regressor!")
         print("Exiting...")
-	return None
+        return None
     
     # load random forest models
     RF_class,RF_regr_1,RF_regr_100=load_RF()
