@@ -118,7 +118,7 @@ def getKeplerProt(X_pred):
 	
     except KeyError:
         print("Make sure ['LG_peaks', 'Rvar', 'parallax', 'radius_percentile_lower', 'radius_percentile_upper', 'phot_g_mean_flux_over_error', 'bp_g'] are in DataFrame for classifier!")
-	print("Exiting...")
+        print("Exiting...")
         return None
     
     # check if satisfy regressor features
