@@ -89,12 +89,12 @@ def getKeplerProt(X_pred):
     """Predict rotation period from trained models. 
     
     This function predicts rotation periods for stars in the Kepler field. The models are trained on rotation periods from 
-    `McQuillian et all. (2014) <https://arxiv.org/abs/1402.5694>`_., `Santos et all. (2019) <https://arxiv.org/abs/1908.05222>`_. 
-    and `Garcia et all. <https://arxiv.org/abs/1403.7155>`_.. If the models are not already downloaded, this tool will download 
+    `McQuillian et all. (2014) <https://arxiv.org/abs/1402.5694>`_, `Santos et all. (2019) <https://arxiv.org/abs/1908.05222>`_ 
+    and `Garcia et all. (2014) <https://arxiv.org/abs/1403.7155>`_. If the models are not already downloaded, this tool will download 
     the model which might take a couple of minues. It first passes the stars through a classifier, which identifies what stars 
     have measureable rotation periods. Then it uses two regressor models (one with 1 estimator and another one with 100 estimators) 
     to predict rotation periods. If column "Prot" exist, it will also output the true periods associated with the predicted periods.
-    The light curve feature "flicker" can be calculated using software `FLICKER <https://flicker.readthedocs.io/en/latest/>`_..
+    The light curve feature "flicker" can be calculated using software `FLICKER <https://flicker.readthedocs.io/en/latest/>`_.
     
     Args:
       X_pred ([Pandas DataFrame]): DataFrame contains all variables needed, run Astraea.getTrainF() to print out requirements
@@ -118,7 +118,7 @@ def getKeplerProt(X_pred):
 	
     except KeyError:
         print("Make sure ['LG_peaks', 'Rvar', 'parallax', 'radius_percentile_lower', 'radius_percentile_upper', 'phot_g_mean_flux_over_error', 'bp_g'] are in DataFrame for classifier!")
-        print("Exiting...")
+	print("Exiting...")
         return None
     
     # check if satisfy regressor features
