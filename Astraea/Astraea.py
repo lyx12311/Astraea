@@ -53,10 +53,10 @@ def load_RF():
     if not os.path.exists('./data/RF_Class_model.sav'):
         print('downloading classifier!')
         download_RF_class()
-    if not os.path.exists('./data/RF_Regre_model_100est_flicker.sav'):
+    if not os.path.exists('./data/RF_Regre_model_1est_flicker.sav'):
         print('downloading regressor with 1 estimator!')
         download_RF_regr_1est()
-    if not os.path.exists('./data/RF_Regre_model_1est_flicker.sav'):
+    if not os.path.exists('./data/RF_Regre_model_100est_flicker.sav'):
         print('downloading regressor with 100 estimators!')
         download_RF_regr_100est()
     return joblib.load('./data/RF_Class_model.sav'),joblib.load('./data/RF_Regre_model_100est_flicker.sav'),joblib.load('./data/RF_Regre_model_1est_flicker.sav')
@@ -305,21 +305,20 @@ def MRE(TrueVal,PreVal,TrueVal_err=[]):
 
 
 # plot different features vs Prot
-def plot_corr(df,y_vars,x_var='Prot',logplotarg=[],logarg=[]):
+def plot_corr(df,y_vars,x_var='Prot',logplotarg=[],logarg=[],MS=1):
     """Plot correlations on one variable vs other variables specified by user
     
     Args:
-      df ([Pandas DataFrame]): DataFrame contains all variables needed
+         df ([Pandas DataFrame]): DataFrame contains all variables needed
       y_vars ([string list]): List of variables on y axis
       x_var (optional [string]): Value for all x axis 
       logplotarg (Optional [string list]): Variables to plot in loglog scale
       logarg (Optional [string] or [string list]): 'loglog' or 'logx' or 'logy' (default is linear). If it is a list, each argument in *logplotarg* correspond to each scale in *logarg* in order 
-    """
-    # df: dataframe
-    # my_xticks: features to plot against Prot
-    # logplotarg: arguments to plot in loglog space
-    # logarg: which log to plot
+      MS (Optional [int]): Markersize for plotting 
     
+    Returns:
+      <matplotlib.plot>: plots for feature correlations
+    """
     # add in Prot
     Prot=df[x_var]
     df=df[y_vars].dropna()
@@ -349,24 +348,24 @@ def plot_corr(df,y_vars,x_var='Prot',logplotarg=[],logarg=[]):
         if len(logarg)==1:
             if y_vars[i] in logplotarg:
                 if logarg=='loglog':
-                    plt.loglog(Prot,featurep,'k.',markersize=1)
+                    plt.loglog(Prot,featurep,'k.',markersize=MS)
                 elif logarg=='logx':
-                    plt.semilogx(Prot,featurep,'k.',markersize=1)
+                    plt.semilogx(Prot,featurep,'k.',markersize=MS)
                 elif logarg=='logy':
-                    plt.semilogy(Prot,featurep,'k.',markersize=1)
-                else:
-                    plt.plot(Prot,featurep,'k.',markersize=1)
+                    plt.semilogy(Prot,featurep,'k.',markersize=MS)
+            else:
+                plt.plot(Prot,featurep,'k.',markersize=MS)
         else:
             if y_vars[i] in logplotarg:
                 logsca=logarg[logplotarg.index(y_vars[i])]
                 if logsca=='loglog':
-                    plt.loglog(Prot,featurep,'k.',markersize=1)
+                    plt.loglog(Prot,featurep,'k.',markersize=MS)
                 elif logsca=='logx':
-                    plt.semilogx(Prot,featurep,'k.',markersize=1)
+                    plt.semilogx(Prot,featurep,'k.',markersize=MS)
                 elif logsca=='logy':
-                    plt.semilogy(Prot,featurep,'k.',markersize=1)
-                else:
-                    plt.plot(Prot,featurep,'k.',markersize=1)
+                    plt.semilogy(Prot,featurep,'k.',markersize=MS)
+            else:
+                plt.plot(Prot,featurep,'k.',markersize=MS)
 		    
         plt.title(y_vars[i],fontsize=25)
         stddata=np.std(featurep)
@@ -520,7 +519,10 @@ def RFclassifier(df,testF,modelout=False,traind=0.8,ID_on='KID',X_train_ind=[],X
     return regr,pd.Series([importance,actrualF,ID_train,ID_test,predictp,X_test,y_test,X_train,y_train],index=['importance','actrualF','ID_train','ID_test','prediction','X_test','y_test','X_train','y_train'])
 	
 # RF regressor	 
-def RFregressor(df,testF,modelout=False,traind=0.8,ID_on='KID',X_train_ind=[],X_test_ind=[],target_var='Prot',target_var_err='Prot_err',chisq_out=False,MREout=False,n_estimators=100, criterion='mse', max_depth=None, min_samples_split=2, min_samples_leaf=1, min_weight_fraction_leaf=0.0, max_features='auto', max_leaf_nodes=None, min_impurity_decrease=0.0, min_impurity_split=None, bootstrap=True, oob_score=False, n_jobs=1, random_state=None, verbose=0, warm_start=False):
+def RFregressor(df,testF,modelout=False,traind=0.8,ID_on='KID',X_train_ind=[],X_test_ind=[],target_var='Prot',target_var_err='Prot_err',chisq_out=False,MREout=False,n_estimators=100,
+criterion='mse', max_depth=None, min_samples_split=2, min_samples_leaf=1, min_weight_fraction_leaf=0.0,
+max_features='auto', max_leaf_nodes=None, min_impurity_decrease=0.0, min_impurity_split=None,
+bootstrap=True, oob_score=False, n_jobs=1, random_state=None, verbose=0, warm_start=False):
     """Train RF regression model and perform cross-validation test. 
     
     It uses scikit-learn Random Forest regressor model. All default hyper-parameters are taken from the scikit-learn model that user can change by adding in optional inputs. More details on hyper-parameters, see https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestRegressor.html. To use the module to train a RF model to predict rotation period, input a pandas dataFrame with column names as well as a list of attribute names. 
