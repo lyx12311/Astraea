@@ -70,10 +70,11 @@ def FLICKERinstall():
     """ Installs the FLICKER software to calcualte Flicker values from light curves. Documentation: https://flicker.readthedocs.io.
     
     """
-    os.system('git clone https://github.com/lyx12311/FLICKER.git')
-    os.system('cd FLICKER')
-    os.system('python setup.py install')
-    os.system('cd ..')
+    os.system('pip install git+https://github.com/lyx12311/FLICKER.git')
+    #os.system('git clone https://github.com/lyx12311/FLICKER.git')
+    #os.system('cd FLICKER')
+    #os.system('python setup.py install')
+    #os.system('cd ..')
 
 def getTrainF():
     """Print out needed featuers for the model in order.
