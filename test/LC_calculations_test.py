@@ -2,9 +2,9 @@ import Astraea
 import numpy as np
 
 # load in data
-t=np.load('t.npy')
-sig=np.load('sig.npy')
-sig_err=np.load('sig_err.npy')
+t=np.load('./test/t.npy')
+sig=np.load('./test/sig.npy')
+sig_err=np.load('./test/sig_err.npy')
 
 def test_Rvar():
     """ 
