@@ -16,7 +16,7 @@ def test_classifier():
     preds = probs[:,1]
     fpr, tpr, threshold = metrics.roc_curve(regr_outs.y_test, preds)
     roc_auc = metrics.auc(fpr, tpr)
-    assert roc_auc > 0.98, "classification accuracy is low!"
+    assert roc_auc > 0.95, "classification accuracy is low!"
 
 def test_regressor():
     """

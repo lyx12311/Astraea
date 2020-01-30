@@ -9,9 +9,9 @@ def test_download():
     KeplerTest=Astraea.load_KeplerTest()
     assert len(KeplerTest)!=0, "Can not download Kepler testing data!"
     RF_class,RF_regr_1,RF_regr_100=Astraea.load_RF()
-    assert len(RF_class), "Classifier download failed!"
-    assert len(RF_regr_1), "Regressor with 1 estimator download failed!"
-    assert len(RF_regr_100), "Regressor with 100 estimator download failed!"
+    assert len(RF_class)>0, "Classifier download failed!"
+    assert len(RF_regr_1)>0, "Regressor with 1 estimator download failed!"
+    assert len(RF_regr_100)>0, "Regressor with 100 estimator download failed!"
     Astraea.FLICKERinstall()
     import FLICKER
     assert 'FLICKER' in sys.modules, "Could not install FLICKER!"
