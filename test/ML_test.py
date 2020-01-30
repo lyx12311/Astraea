@@ -35,7 +35,7 @@ def test_regressor():
     X_y['y_err']=np.random.rand(5000)
     
     regr,regr_outs=Astraea.RFregressor(X_y,['X'+str(i) for i in range(np.shape(X)[1])],target_var='y',target_var_err='y_err',n_estimators=3)
-    assert regr_outs['ave_chi2']<1000, "regression accuracy is low! run test again. If still fails then something is wrong!"
+    assert regr_outs['ave_chi2']<1500, "regression accuracy is low! run test again. If still fails then something is wrong!"
 
     
     

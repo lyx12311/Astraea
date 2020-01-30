@@ -17,13 +17,13 @@ def download_RF_class(url='https://zenodo.org/record/3620729/files/RF_Class_mode
     os.system('wget '+url)
     os.system('mv RF_Class_model.sav?download=1 ./data/RF_Class_model.sav')
    
-def download_RF_regr_1est(url='https://zenodo.org/record/3620729/files/RF_Regre_model_100est_flicker.sav?download=1'):
-    os.system('wget '+url)
-    os.system('mv RF_Regre_model_100est_flicker.sav?download=1 ./data/RF_Regre_model_100est_flicker.sav')
-
-def download_RF_regr_100est(url='https://zenodo.org/record/3620729/files/RF_Regre_model_1est_flicker.sav?download=1'):
+def download_RF_regr_1est(url='https://zenodo.org/record/3620729/files/RF_Regre_model_1est_flicker.sav?download=1'):
     os.system('wget '+url)
     os.system('mv RF_Regre_model_1est_flicker.sav?download=1 ./data/RF_Regre_model_1est_flicker.sav')
+
+def download_RF_regr_100est(url='https://zenodo.org/record/3620729/files/RF_Regre_model_100est_flicker.sav?download=1'):
+    os.system('wget '+url)
+    os.system('mv RF_Regre_model_100est_flicker.sav?download=1 ./data/RF_Regre_model_100est_flicker.sav')
 
 
 # load testing data

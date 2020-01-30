@@ -24,5 +24,7 @@ API documentation
 
 .. autofunction:: Astraea.load_RF
 
+.. autofunction:: Astraea.plot_corr
+
 .. autofunction:: Astraea.plot_result
 
