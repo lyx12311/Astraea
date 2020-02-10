@@ -32,3 +32,8 @@ Tutorials
 
 License & attribution
 ---------------------
+Copyright 2020, Yuxi Lu.
+
+The source code is made available under the terms of the MIT license.
+
+If you make use of this code, please cite this package and its dependencies. You can find more information about how and what to cite in the citation documentation (not yet complete).
