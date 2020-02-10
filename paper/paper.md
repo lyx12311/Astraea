@@ -18,7 +18,7 @@ affiliations:
  - name: Department of Astrophysics, American Museum of Natural History, New York, NY, 10024, USA
    index: 2
  - name: Center for Computational Astrophysics, Flatiron Institute, New York, NY, 10010, USA
-   index:3
+   index: 3
 aas-doi: 
 aas-jornal: 
 date: 10 February 2020
