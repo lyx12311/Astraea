@@ -1,5 +1,5 @@
 ---
-title: 'Astraea: A Python package for predicting rotation periods from Kepler/TESS light curves'
+title: "Astraea: A Python package for predicting rotation periods from Kepler/TESS light curves"
 tags:
   - Python
   - astronomy
@@ -19,6 +19,8 @@ affiliations:
    index: 2
  - name: Center for Computational Astrophysics, Flatiron Institute, New York, NY, 10010, USA
    index:3
+aas-doi: 
+aas-jornal: 
 date: 10 February 2020
 bibliography: paper.bib
 ---
