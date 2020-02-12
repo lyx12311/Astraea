@@ -228,6 +228,9 @@ def getVs(df):
     Args:
       df ([Pandas DataFrame]): DataFrame contains columns 'parallax', 'pmra', 'pmdec', 'ra', 'dec', which are parallax, ra proper motion, dec propermotion, right ascension and declination, respectively  
     
+    Returns:
+      :v_t ([array-like]): Tangential velocity
+      :v_b ([array-like]): Proxy for vertical velocity
     """
     d = coord.Distance(parallax=np.array(df.parallax) * u.mas,allow_negative=True)
     vra = (np.array(df.pmra)*u.mas/u.yr * d).to(u.km/u.s, u.dimensionless_angles())
