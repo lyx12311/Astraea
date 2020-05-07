@@ -29,9 +29,9 @@ bibliography: paper.bib
 The rotation periods of planet hosting stars are useful for a number of reasons.
 For example, they can be used for modeling and mitigating the impact of magnetic activity in radial velocity measurements and can help constrain the high-energy flux environment and ‘space weather’ of planetary systems.
 Also, using gyrochronology, one can learn the age of a main-sequence star from its rotation period [@Barnes2003; @Barnes2007] and therefore probe the evolution state of exoplanets within the system.
-The most common tools used to measure rotation periods are periodograms (e.g. Lomb-Scargle) [@Reinhold2015], Auto-correlation Functions (ACF) [@McQuillan2014] and Gaussian processes [@Angus2018, @ForemanMackey2017].
+The most common tools used to measure rotation periods are periodograms (e.g. Lomb-Scargle) [@Reinhold2015], Auto-correlation Functions (ACF) [@McQuillan2014] and Gaussian processes [@Angus2018; @ForemanMackey2017].
 These methods typically require the observed light curve to contain continuous data for more than one rotation period of the star in order to get an accurate estimate.
-Although they can be measured precisely for stars that show periodic signals, that were observed by Kepler [@Borucki2010],, long rotation periods for stars observed by TESS, especially those with only 27 days of observations per year (most stars being observed are located in these zones, [@TESS]), are extremely hard to measure directly.
+Although they can be measured precisely for stars that show periodic signals, that were observed by Kepler [@Borucki2010], long rotation periods for stars observed by TESS, especially those with only 27 days of observations per year (most stars being observed are located in these zones, [@TESS]), are extremely hard to measure directly.
 Even worse, low-mass stars (e.g. M-dwarf stars) usually have long rotation periods ($>$ 25-30 days) [@McQuillan2014].
 
 ``Astraea`` is a tool to predict rotation periods without needing long time-series observations using Random Forest, a machine learning algorithm that combines multiple decision trees to prevent over-fitting and a suitable algorithm to learn complex non-linear relations between different stellar properties.
