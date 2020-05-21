@@ -26,7 +26,6 @@ install:
   # install packages for testing
   - pip install --upgrade pytest>=3.6.3
   - pip install sklearn --upgrade
-  - pip install pickle --upgrade
   # build stardate
   - pip install -e .
 script:
