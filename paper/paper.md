@@ -26,17 +26,11 @@ bibliography: paper.bib
 ---
 
 # Summary
-The rotation periods of planet hosting stars are useful for a number of reasons.
-For example, they can be used for modeling and mitigating the impact of magnetic activity in radial velocity measurements and can help constrain the high-energy flux environment and ‘space weather’ of planetary systems.
-Also, using gyrochronology, one can learn the age of a main-sequence star from its rotation period [@Barnes2003; @Barnes2007] and therefore probe the evolution state of exoplanets within the system.
-The most common tools used to measure rotation periods are periodograms (e.g. Lomb-Scargle) [@Reinhold2015], Auto-correlation Functions (ACF) [@McQuillan2014] and Gaussian processes [@Angus2018; @ForemanMackey2017].
-These methods typically require the observed light curve to contain continuous data for more than one rotation period of the star in order to get an accurate estimate.
-Although they can be measured precisely for stars that show periodic signals, that were observed by Kepler [@Borucki2010], long rotation periods for stars observed by TESS, especially those with only 27 days of observations per year (most stars being observed are located in these zones, [@TESS]), are extremely hard to measure directly.
-Even worse, low-mass stars (e.g. M-dwarf stars) usually have long rotation periods ($>$ 25-30 days) [@McQuillan2014].
+``Astraea`` is a tool to predict long stellar rotation periods without requiring long time-series light curves. It uses Random Forest (RF), a classical machine learning algorithm suitable to learn complex non-linear relations between different stellar properties. RF combines multiple decision trees, also a classical machine learning algorithm that uses ``features`` (e.g. stellar properties) to split the data set into subsets and fit piecewise smooth functions in order to predict the ``label`` (e.g. rotation periods). By averaging the prediction results from multiple Decision Trees that fit to different subsets of the data, Random Forest can be used to predict ``labels`` without over-fitting the data.
 
-``Astraea`` is a tool to predict rotation periods without needing long time-series observations using Random Forest, a machine learning algorithm that combines multiple decision trees to prevent over-fitting and a suitable algorithm to learn complex non-linear relations between different stellar properties.
-User can either train their own model or use our model that trained on stars from the catalog by McQuillian et all. (2014).
-User can predict whether the rotation period can be predicted and predict rotation periods for the stars in the Kepler or TESS field by using their temperatures, colors, kinematics, etc.
+Unlike traditional methods (e.g. Lomb-Scargle [@Reinhold2015], Auto-correlation Functions (ACF) [@McQuillan2014] and Gaussian processes [@Angus2018; @ForemanMackey2017]), whose accuracy relies on how many revolutions the star has gone through in the time-span of the light curve, ``Astraea`` models the complex relations between stellar properties (which can be obtained from sources other than the light curves) and rotation periods. 
+
+Using ``Astraea``, user can either train their own model or use our built-in model trained on stars from the rotation period catalog by McQuillian et all. (2014) and Gaia [@Prusti2016; @Brown2018] stellar parameters. The built-in model first determines whether the rotation period is ``measurable`` using a RF classifier. If the rotation period is ``measurable``, the model will then predict the rotation period using the trained RF regressor. Currently, the built-in model works best for stars in the Kepler field [@Borucki2010] by using their temperatures, colors, kinematics, etc. However, one can easily re-train the model on other surveys. We have tested the built-in model on TESS stars [@TESS] in Lu et all. in prep. and it exhibits promising results.
 
 ``Astraea`` is built on the Random Forest models in Python scikit-learn package [@scikit-learn]. 
 Development of ``Astraea`` happens on GitHub and any issues can be raisedthere.
