@@ -11,7 +11,7 @@ authors:
     affiliation: "1" 
   - name: Ruth Angus
     orcid: 0000-0003-4540-5661
-    affiliation: "2, 3"
+    affiliation: "1, 2, 3"
 affiliations:
  - name: Department of Astronomy, Columbia University, New Yrok, NY, 10027, USA
    index: 1
