@@ -61,7 +61,7 @@ def load_RF():
     if not os.path.exists('./data/RF_Regre_model_100est_flicker.sav'):
         print('downloading regressor with 100 estimators!')
         download_RF_regr_100est()
-    return pickle.load(open('./data/RF_Class_model.sav'), 'rb')),pickle.load(open('./data/RF_Regre_model_100est_flicker.sav'), 'rb')),pickle.load(open('./data/RF_Regre_model_1est_flicker.sav'), 'rb'))
+    return pickle.load(open('./data/RF_Class_model.sav'), 'rb'),pickle.load(open('./data/RF_Regre_model_100est_flicker.sav'), 'rb'),pickle.load(open('./data/RF_Regre_model_1est_flicker.sav'), 'rb')
 
 """--------------------------------------------- end of function to download/load RF ---------------------------------------------"""
 
