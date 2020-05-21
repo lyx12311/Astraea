@@ -33,7 +33,6 @@ Unlike traditional methods (e.g. Lomb-Scargle [@Reinhold2015], Auto-correlation 
 
 Using ``Astraea``, user can either train their own model or use our built-in model trained on stars from the rotation period catalog by McQuillian et all. (2014) and Gaia [@Prusti2016; @Brown2018] stellar parameters. The built-in model first determines whether the rotation period is ``measurable`` using a RF classifier. If the rotation period is ``measurable``, the model will then predict the rotation period using the trained RF regressor. Currently, the built-in model works best for stars in the Kepler field [@Borucki2010] by using their temperatures, colors, kinematics, etc. However, one can easily re-train the model on other surveys. We have tested the built-in model on TESS stars [@TESS] in Lu et all. in prep. and it exhibits promising results.
 
-``Astraea`` is built on the Random Forest models in Python scikit-learn package [@scikit-learn]. 
-Development of ``Astraea`` happens on GitHub and any issues can be raisedthere.
+``Astraea`` is built on the Random Forest models in Python scikit-learn package [@scikit-learn]. Development of ``Astraea`` happens on GitHub and any issues can be raisedthere.
 
 # References
