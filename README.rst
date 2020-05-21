@@ -1,10 +1,10 @@
 Astraea
 ====================================
-.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.3620729.svg
-   :target: https://doi.org/10.5281/zenodo.3620729
+.. image:: https://zenodo.org/badge/227692575.svg
+   :target: https://zenodo.org/badge/latestdoi/227692575
 
-.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.3628778.svg
-   :target: https://doi.org/10.5281/zenodo.3628778
+.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.3838683.svg
+   :target: https://doi.org/10.5281/zenodo.3838683
 
 .. image:: https://travis-ci.com/lyx12311/Astraea.svg?branch=master
    :target: https://travis-ci.com/lyx12311/Astraea
