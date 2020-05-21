@@ -21,7 +21,7 @@ affiliations:
    index: 3
 aas-doi: 
 aas-jornal: 
-date: 10 February 2020
+date: 21 May 2020
 bibliography: paper.bib
 ---
 
