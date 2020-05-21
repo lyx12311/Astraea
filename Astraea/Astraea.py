@@ -1,6 +1,7 @@
 import pandas as pd 
 import matplotlib.pyplot as plt
 import numpy as np
+import pickle
 import os 
 
 from astropy import units as u
@@ -11,18 +12,18 @@ import astropy.coordinates as coord
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.ensemble import RandomForestClassifier
 #from sklearn.externals import joblib
-import joblib
+#import joblib
     
 """--------------------------------------------- start of function to download/load RF ---------------------------------------------"""
-def download_RF_class(url='https://zenodo.org/record/3620729/files/RF_Class_model.sav?download=1'):
+def download_RF_class(url='https://zenodo.org/record/3838683/files/RF_Class_model.sav?download=1'):
     os.system('wget '+url)
     os.system('mv RF_Class_model.sav?download=1 ./data/RF_Class_model.sav')
    
-def download_RF_regr_1est(url='https://zenodo.org/record/3620729/files/RF_Regre_model_1est_flicker.sav?download=1'):
+def download_RF_regr_1est(url='https://zenodo.org/record/3838683/files/RF_Regre_model_1est_flicker.sav?download=1'):
     os.system('wget '+url)
     os.system('mv RF_Regre_model_1est_flicker.sav?download=1 ./data/RF_Regre_model_1est_flicker.sav')
 
-def download_RF_regr_100est(url='https://zenodo.org/record/3620729/files/RF_Regre_model_100est_flicker.sav?download=1'):
+def download_RF_regr_100est(url='https://zenodo.org/record/3838683/files/RF_Regre_model_100est_flicker.sav?download=1'):
     os.system('wget '+url)
     os.system('mv RF_Regre_model_100est_flicker.sav?download=1 ./data/RF_Regre_model_100est_flicker.sav')
 
@@ -60,7 +61,7 @@ def load_RF():
     if not os.path.exists('./data/RF_Regre_model_100est_flicker.sav'):
         print('downloading regressor with 100 estimators!')
         download_RF_regr_100est()
-    return joblib.load('./data/RF_Class_model.sav'),joblib.load('./data/RF_Regre_model_100est_flicker.sav'),joblib.load('./data/RF_Regre_model_1est_flicker.sav')
+    return pickle.load(open('./data/RF_Class_model.sav'), 'rb')),pickle.load(open('./data/RF_Regre_model_100est_flicker.sav'), 'rb')),pickle.load(open('./data/RF_Regre_model_1est_flicker.sav'), 'rb'))
 
 """--------------------------------------------- end of function to download/load RF ---------------------------------------------"""
 
