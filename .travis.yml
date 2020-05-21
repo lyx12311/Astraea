@@ -25,6 +25,7 @@ install:
   - pip install sphinx sphinx-rtd-theme
   # install packages for testing
   - pip install --upgrade pytest>=3.6.3
+  - pip install sklearn
   # build stardate
   - pip install -e .
 script:
