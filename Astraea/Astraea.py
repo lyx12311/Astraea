@@ -10,7 +10,8 @@ import astropy.coordinates as coord
 
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.externals import joblib
+#from sklearn.externals import joblib
+import joblib
     
 """--------------------------------------------- start of function to download/load RF ---------------------------------------------"""
 def download_RF_class(url='https://zenodo.org/record/3620729/files/RF_Class_model.sav?download=1'):
