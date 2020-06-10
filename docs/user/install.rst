@@ -5,6 +5,7 @@ From GitHub source:
 
 .. code-block:: bash
 
+    brew install wget
     git clone https://github.com/lyx12311/Astraea.git
     cd Astraea
     python setup.py install
