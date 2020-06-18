@@ -12,4 +12,6 @@ setup(name='Astraea',
       license=' ',
       packages=['Astraea'],
       install_requires=['numpy', 'pandas', 'astropy', 'sklearn','matplotlib'],
-      zip_safe=False)
+      zip_safe=False,
+      include_package_data=True
+      )

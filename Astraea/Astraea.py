@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pickle
 import os 
+import pkg_resources
 
 from astropy import units as u
 from astropy.coordinates import SkyCoord
@@ -15,17 +16,17 @@ from sklearn.ensemble import RandomForestClassifier
 #import joblib
     
 """--------------------------------------------- start of function to download/load RF ---------------------------------------------"""
-def download_RF_class(url='https://zenodo.org/record/3838683/files/RF_Class_model.sav?download=1'):
+def download_RF_class(filename,url='https://zenodo.org/record/3838683/files/RF_Class_model.sav?download=1'):
     os.system('wget '+url)
-    os.system('mv RF_Class_model.sav?download=1 ./data/RF_Class_model.sav')
+    os.system('mv RF_Class_model.sav?download=1 '+filename)
    
-def download_RF_regr_1est(url='https://zenodo.org/record/3838683/files/RF_Regre_model_1est_flicker.sav?download=1'):
+def download_RF_regr_1est(filename,url='https://zenodo.org/record/3838683/files/RF_Regre_model_1est_flicker.sav?download=1'):
     os.system('wget '+url)
-    os.system('mv RF_Regre_model_1est_flicker.sav?download=1 ./data/RF_Regre_model_1est_flicker.sav')
+    os.system('mv RF_Regre_model_1est_flicker.sav?download=1 '+filename)
 
-def download_RF_regr_100est(url='https://zenodo.org/record/3838683/files/RF_Regre_model_100est_flicker.sav?download=1'):
+def download_RF_regr_100est(filename,url='https://zenodo.org/record/3838683/files/RF_Regre_model_100est_flicker.sav?download=1'):
     os.system('wget '+url)
-    os.system('mv RF_Regre_model_100est_flicker.sav?download=1 ./data/RF_Regre_model_100est_flicker.sav')
+    os.system('mv RF_Regre_model_100est_flicker.sav?download=1 '+filename)
 
 
 # load testing data
@@ -50,18 +51,23 @@ def load_RF():
    
     
     """
-    if not os.path.exists('./data/'):
-        os.system('mkdir data')
-    if not os.path.exists('./data/RF_Class_model.sav'):
+    DataFolder=pkg_resources.resource_filename(__name__,'/data')
+    class_file=pkg_resources.resource_filename(__name__,'/data/RF_Class_model.sav')
+    reg_file_1est=pkg_resources.resource_filename(__name__,'/data/RF_Regre_model_1est_flicker.sav')
+    reg_file_100est=pkg_resources.resource_filename(__name__,'/data/RF_Regre_model_100est_flicker.sav')
+    print(class_file)
+    if not os.path.exists(DataFolder):
+        os.system('mkdir '+DataFolder)
+    if not os.path.exists(class_file):
         print('downloading classifier!')
-        download_RF_class()
-    if not os.path.exists('./data/RF_Regre_model_1est_flicker.sav'):
+        download_RF_class(class_file)
+    if not os.path.exists(reg_file_1est):
         print('downloading regressor with 1 estimator!')
-        download_RF_regr_1est()
-    if not os.path.exists('./data/RF_Regre_model_100est_flicker.sav'):
+        download_RF_regr_1est(reg_file_1est)
+    if not os.path.exists(reg_file_100est):
         print('downloading regressor with 100 estimators!')
-        download_RF_regr_100est()
-    return pickle.load(open('./data/RF_Class_model.sav', 'rb')),pickle.load(open('./data/RF_Regre_model_100est_flicker.sav', 'rb')), pickle.load(open('./data/RF_Regre_model_1est_flicker.sav', 'rb'))
+        download_RF_regr_100est(reg_file_100est)
+    return pickle.load(open(class_file, 'rb')),pickle.load(open(reg_file_1est, 'rb')), pickle.load(open(reg_file_100est, 'rb'))
 
 """--------------------------------------------- end of function to download/load RF ---------------------------------------------"""
 
