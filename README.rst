@@ -12,10 +12,12 @@ Astraea
 .. image:: https://readthedocs.org/projects/stardate/badge/?version=latest
     :target: https://Astraea.readthedocs.io/en/latest/?badge=latest
 
-*Astraea* is a package to train Random Forest (RF) models on datasets. It provides tools to train RF classifiers and regressors as well as perform simple cross-validation tests and performance plots on the test set.
+*Astraea* is a package to train Random Forest (RF) models on datasets. It provides tools to train RF classifiers and regressors as well as perform simple cross-validation tests and create performance plots on the test set.
 
-It was first developed to calculate rotation period of stars from various stellar properties provided and is intended to predict long rotation periods (e.g. that of M-dwarfs) from short TESS  lightcurves (27-day lightcurves). 
+It was first developed to calculate rotation period of stars from various stellar properties provided and was intended to predict long rotation periods (e.g. those of M-dwarfs) from short TESS lightcurves (27-day lightcurves). 
 
-We provide access to trained models on stars from the catalog by `McQuillian et all. (2014) <https://arxiv.org/abs/1402.5694>`_. User can predict whether the rotation period can be recovered and measure recoverable rotation periods for the stars in the Kepler field by using their temperatures, colors, kinematics, etc. 
+We provide access to trained models on stars from the catalog by `McQuillan et al. (2014) <https://arxiv.org/abs/1402.5694>`_. User can predict whether the rotation period can be recovered and measure recoverable rotation periods for the stars in the Kepler field by using their temperatures, colors, kinematics, etc. 
 
 For user guides and tutorials, see `Astraea readthedocs <https://astraea.readthedocs.io/en/latest/?badge=latest>`_
+
+Original paper can be found here: in prep.
