@@ -1,5 +1,5 @@
 ---
-title: "Astraea: A Python package for predicting long rotation periods from Kepler/TESS light curves"
+title: "Astraea: A Python package for predicting long rotation periods from short light curves"
 tags:
   - Python
   - astronomy
