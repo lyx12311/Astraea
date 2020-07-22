@@ -9,7 +9,7 @@ Astraea
 
 It was first developed to calculate rotation period of stars from various stellar properties provided and is intended to predict long rotation periods (e.g. those of M-dwarfs) from short TESS  lightcurves (27-day lightcurves). 
 
-We provide access to models trained on stars from the catalog by `McQuillan et al. (2014) <https://arxiv.org/abs/1402.5694>`_. Users can predict whether rotation period can be recovered and predict recoverable rotation periods for the stars in the Kepler field by using their temperatures, colors, kinematics, and other stellar parameters. 
+We provide access to models trained on stars from the catalog by `McQuillan et al. (2014) <https://arxiv.org/abs/1402.5694>`_, `Garcia et al. (2014) <https://ui.adsabs.harvard.edu/abs/2014A%26A...572A..34G/abstract>`_, and `Santos et al. (2019) <https://ui.adsabs.harvard.edu/abs/2019ApJS..244...21S/abstract>`_. Users can predict whether rotation period can be recovered and predict recoverable rotation periods for the stars in the Kepler field by using their temperatures, colors, kinematics, and other stellar parameters. 
 
 .. Contents:
 
