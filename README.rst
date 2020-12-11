@@ -20,4 +20,4 @@ We provide access to trained models on stars from the catalog by `McQuillan et a
 
 For user guides and tutorials, see `Astraea readthedocs <https://astraea.readthedocs.io/en/latest/?badge=latest>`_
 
-Original paper can be found here: in prep.
+Original paper can be found here: https://ui.adsabs.harvard.edu/abs/2020AJ....160..168L/abstract.
